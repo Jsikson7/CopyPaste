@@ -915,6 +915,16 @@
       pointer-events: none;
     }
 
+    .iq-not-ok-preview-text {
+      margin: 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      color: var(--preview-ink);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.78rem;
+      line-height: 1.65;
+    }
+
     @media (max-width: 360px) {
       .iq-grid {
         grid-template-columns: 42px repeat(4, minmax(0, 1fr));
@@ -1685,7 +1695,7 @@
             <span class="form-tile-arrow" aria-hidden="true">›</span>
           </button>
         </div>
-        <p class="last-updated">Version 1.1 · Last updated: <time datetime="2026-08-17">August 17, 2026</time></p>
+        <p class="last-updated">Version 1.3 · Last updated: <time datetime="2026-08-17">August 17, 2026</time></p>
       </section>
     </section>
 
@@ -1842,7 +1852,7 @@
           </div>
           <div class="actions">
             <button id="lns-copy-report" class="button button-primary" type="button">Copy IQ check</button>
-            <button id="lns-copy-not-ok" class="button button-secondary" type="button">Copy only ❌ results</button>
+            <button id="lns-toggle-preview" class="button button-secondary" type="button" aria-pressed="false">Show only ❌ results</button>
           </div>
           <p id="lns-copy-status" class="status" role="status" aria-live="polite"></p>
           <p id="lns-draft-note" class="privacy-note" role="status" aria-live="polite">Settings are saved only in this browser and automatically deleted 12 hours after the last change unless manually cleared.</p>
@@ -1924,6 +1934,7 @@
       var lnsDraftExpiryTimer = null;
       var lnsDraftSavingEnabled = false;
       var lnsStatusTimer = null;
+      var lnsPreviewMode = "full";
       var themeSelect = document.getElementById("theme-select");
       var themeColorMeta = document.querySelector('meta[name="theme-color"]');
       var form = document.getElementById("review-form");
@@ -1956,7 +1967,7 @@
       var lnsPreview = document.getElementById("lns-preview");
       var lnsNotOkPreview = document.getElementById("lns-not-ok-preview");
       var lnsCopyButton = document.getElementById("lns-copy-report");
-      var lnsCopyNotOkButton = document.getElementById("lns-copy-not-ok");
+      var lnsTogglePreviewButton = document.getElementById("lns-toggle-preview");
       var lnsStatus = document.getElementById("lns-copy-status");
       var lnsDraftNote = document.getElementById("lns-draft-note");
       var themeColors = {
@@ -2421,7 +2432,6 @@
         var lines = [
           "MI2 Image Quality Check - Not OK Only",
           lnsDateText(lnsDate.value) + " - " + lnsTime.value,
-          "----------------------------------------",
           ""
         ];
         var notOkCount = 0;
@@ -2436,14 +2446,17 @@
             });
             if (failedColumns.length) {
               notOkCount += failedColumns.length;
-              groupLines.push("- " + rowName + ": " + failedColumns.map(function (columnName) {
+              if (groupLines.length) groupLines.push("");
+              groupLines.push(rowName + ": " + failedColumns.map(function (columnName) {
                 return columnName + " ❌";
               }).join(", "));
+              groupLines.push("PET Time: ");
             }
           });
           if (groupLines.length) {
             if (hasOutputGroup) lines.push("");
             lines.push(group.heading + ":");
+            lines.push("");
             Array.prototype.push.apply(lines, groupLines);
             hasOutputGroup = true;
           }
@@ -2451,6 +2464,25 @@
 
         if (!notOkCount) lines.push("No ❌ Not OK results.");
         return lines.join("\n");
+      }
+
+      function renderActiveLnsVisualPreview(includedGroups) {
+        var showingNotOkOnly = lnsPreviewMode === "not-ok";
+        lnsTogglePreviewButton.setAttribute("aria-pressed", showingNotOkOnly ? "true" : "false");
+        lnsTogglePreviewButton.textContent = showingNotOkOnly ? "Show full report" : "Show only ❌ results";
+        if (!showingNotOkOnly) {
+          renderLnsVisualPreview(includedGroups);
+          return;
+        }
+
+        lnsVisualPreview.innerHTML = "";
+        lnsVisualPreview.appendChild(makeElement("pre", "iq-not-ok-preview-text", lnsNotOkPreview.value));
+      }
+
+      function toggleLnsPreviewMode() {
+        lnsPreviewMode = lnsPreviewMode === "not-ok" ? "full" : "not-ok";
+        updateLnsPreview({ skipDraftSave: true });
+        showLnsStatus(lnsPreviewMode === "not-ok" ? "Showing only Not OK results." : "Showing the full IQ report.", false);
       }
 
       function updateLnsPreview(options) {
@@ -2484,7 +2516,7 @@
 
         lnsPreview.value = lines.join("\n");
         lnsNotOkPreview.value = buildLnsNotOkReport(includedGroups);
-        renderLnsVisualPreview(includedGroups);
+        renderActiveLnsVisualPreview(includedGroups);
         if (!options || !options.skipDraftSave) queueLnsDraftSave();
       }
 
@@ -2626,6 +2658,7 @@
 
       function resetLnsFormState() {
         var now = new Date();
+        lnsPreviewMode = "full";
         lnsDate.value = localDateValue(now);
         lnsTime.value = currentMinuteTime(now);
         lnsGroups.forEach(function (group) {
@@ -2661,9 +2694,13 @@
 
       function copyLnsReport() {
         updateLnsPreview({ skipDraftSave: true });
-        if (legacyCopyArea(lnsPreview)) {
+        var copySource = lnsPreviewMode === "not-ok" ? lnsNotOkPreview : lnsPreview;
+        var copiedMessage = lnsPreviewMode === "not-ok"
+          ? "Copied the displayed Not OK preview. Paste it into your work chat."
+          : "Copied the displayed full IQ report. Paste it into your work chat.";
+        if (legacyCopyArea(copySource)) {
           lnsCopyButton.textContent = "Copied";
-          showLnsStatus("Copied! Paste the IQ check into your work chat.", false);
+          showLnsStatus(copiedMessage, false);
           window.setTimeout(function () {
             lnsCopyButton.textContent = "Copy IQ check";
           }, 1800);
@@ -2671,51 +2708,21 @@
         }
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(lnsPreview.value).then(function () {
+          navigator.clipboard.writeText(copySource.value).then(function () {
             lnsCopyButton.textContent = "Copied";
-            showLnsStatus("Copied! Paste the IQ check into your work chat.", false);
+            showLnsStatus(copiedMessage, false);
             window.setTimeout(function () {
               lnsCopyButton.textContent = "Copy IQ check";
             }, 1800);
           }).catch(function () {
-            lnsPreview.focus();
-            lnsPreview.select();
-            showLnsStatus("Automatic copy was blocked. The IQ check is selected; use Copy from the phone menu.", true);
+            copySource.focus();
+            copySource.select();
+            showLnsStatus("Automatic copy was blocked. The displayed preview is selected; use Copy from the phone menu.", true);
           });
         } else {
-          lnsPreview.focus();
-          lnsPreview.select();
-          showLnsStatus("Automatic copy was blocked. The IQ check is selected; use Copy from the phone menu.", true);
-        }
-      }
-
-      function copyLnsNotOkReport() {
-        updateLnsPreview({ skipDraftSave: true });
-        if (legacyCopyArea(lnsNotOkPreview)) {
-          lnsCopyNotOkButton.textContent = "Copied ❌ results";
-          showLnsStatus("Copied only the Not OK results. Paste them into your work chat.", false);
-          window.setTimeout(function () {
-            lnsCopyNotOkButton.textContent = "Copy only ❌ results";
-          }, 1800);
-          return;
-        }
-
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(lnsNotOkPreview.value).then(function () {
-            lnsCopyNotOkButton.textContent = "Copied ❌ results";
-            showLnsStatus("Copied only the Not OK results. Paste them into your work chat.", false);
-            window.setTimeout(function () {
-              lnsCopyNotOkButton.textContent = "Copy only ❌ results";
-            }, 1800);
-          }).catch(function () {
-            lnsNotOkPreview.focus();
-            lnsNotOkPreview.select();
-            showLnsStatus("Automatic copy was blocked. The Not OK results are selected; use Copy from the phone menu.", true);
-          });
-        } else {
-          lnsNotOkPreview.focus();
-          lnsNotOkPreview.select();
-          showLnsStatus("Automatic copy was blocked. The Not OK results are selected; use Copy from the phone menu.", true);
+          copySource.focus();
+          copySource.select();
+          showLnsStatus("Automatic copy was blocked. The displayed preview is selected; use Copy from the phone menu.", true);
         }
       }
 
@@ -3170,7 +3177,7 @@
       lnsResetButton.addEventListener("click", startNewLnsCheck);
       lnsMarkAllOkButton.addEventListener("click", markAllLnsOk);
       lnsCopyButton.addEventListener("click", copyLnsReport);
-      lnsCopyNotOkButton.addEventListener("click", copyLnsNotOkReport);
+      lnsTogglePreviewButton.addEventListener("click", toggleLnsPreviewMode);
       lnsDate.addEventListener("change", updateLnsPreview);
       lnsDate.addEventListener("input", updateLnsPreview);
       lnsTime.addEventListener("change", updateLnsPreview);
