@@ -593,12 +593,77 @@
 
     .last-updated {
       margin: 0;
-      padding: 0 16px 16px;
+      padding: 0 16px 10px;
       background: var(--paper);
       color: var(--muted);
       font-size: 0.72rem;
       font-weight: 700;
       text-align: center;
+    }
+
+    .version-history-link-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 0 16px 18px;
+      background: var(--paper);
+    }
+
+    .version-history-link {
+      min-height: 42px;
+      padding: 8px 14px;
+      border: 1px solid var(--control-line);
+      border-radius: 999px;
+      background: var(--cream);
+      color: var(--matcha-700);
+      font-size: 0.78rem;
+      font-weight: 820;
+    }
+
+    .version-history-list {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      background: var(--page);
+    }
+
+    .version-card {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--cream);
+      box-shadow: 0 7px 20px var(--focus-ring);
+    }
+
+    .version-card-current {
+      border-color: var(--matcha-600);
+      background: var(--matcha-100);
+    }
+
+    .version-card-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 7px;
+    }
+
+    .version-card h2 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .version-card time {
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .version-card p {
+      margin: 0;
+      color: var(--secondary-ink);
+      font-size: 0.82rem;
+      line-height: 1.5;
     }
 
     .form-tile {
@@ -1695,7 +1760,61 @@
             <span class="form-tile-arrow" aria-hidden="true">›</span>
           </button>
         </div>
-        <p class="last-updated">Version 1.3 · Last updated: <time datetime="2026-08-17">August 17, 2026</time></p>
+        <p class="last-updated">Version 1.4 · Last updated: <time datetime="2026-08-17">August 17, 2026</time></p>
+        <div class="version-history-link-wrap">
+          <button id="open-version-history" class="version-history-link" type="button">View version history</button>
+        </div>
+      </section>
+    </section>
+
+    <section id="version-history-view" class="app-view" aria-labelledby="version-history-title" hidden>
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Copy/Paste Forms</p>
+          <h1 id="version-history-title">Version history</h1>
+          <p class="hero-copy">A brief record of what changed in each release.</p>
+        </div>
+        <button id="version-history-back" class="button button-secondary top-action-button" type="button">Forms menu</button>
+      </header>
+
+      <section class="panel" aria-label="Release history">
+        <div class="version-history-list">
+          <article class="version-card version-card-current">
+            <div class="version-card-heading">
+              <h2>Version 1.4</h2>
+              <time datetime="2026-08-17">August 17, 2026</time>
+            </div>
+            <p>Added this Version history screen to the main menu so each release has a clear, accessible summary.</p>
+          </article>
+          <article class="version-card">
+            <div class="version-card-heading">
+              <h2>Version 1.3</h2>
+              <time datetime="2026-08-17">August 17, 2026</time>
+            </div>
+            <p>Added a blank PET Time entry beneath every failed machine in the ❌-only IQ report and refined its spacing for quick tech updates.</p>
+          </article>
+          <article class="version-card">
+            <div class="version-card-heading">
+              <h2>Version 1.2</h2>
+              <time datetime="2026-08-17">August 17, 2026</time>
+            </div>
+            <p>Changed the exception workflow into a visible ❌-only preview. Copy IQ check now copies whichever preview—full or ❌ only—is displayed.</p>
+          </article>
+          <article class="version-card">
+            <div class="version-card-heading">
+              <h2>Version 1.1</h2>
+              <time datetime="2026-08-17">August 17, 2026</time>
+            </div>
+            <p>Added permanent theme saving, a visible version label, and the first option for producing an IQ report containing only ❌ results.</p>
+          </article>
+          <article class="version-card">
+            <div class="version-card-heading">
+              <h2>Version 1.0</h2>
+              <time datetime="2026-08-17">August 17, 2026</time>
+            </div>
+            <p>Established the mobile PKG Update and LNS IQ Check tools with ten themes, draft recovery, section controls, aligned previews, and copy-ready reports.</p>
+          </article>
+        </div>
       </section>
     </section>
 
@@ -1951,10 +2070,13 @@
       var status = document.getElementById("copy-status");
       var draftNote = document.getElementById("draft-note");
       var formsMenuView = document.getElementById("forms-menu-view");
+      var versionHistoryView = document.getElementById("version-history-view");
       var pkgFormView = document.getElementById("pkg-form-view");
       var lnsFormView = document.getElementById("lns-form-view");
       var openPkgButton = document.getElementById("open-pkg-form");
       var openLnsButton = document.getElementById("open-lns-form");
+      var openVersionHistoryButton = document.getElementById("open-version-history");
+      var versionHistoryBackButton = document.getElementById("version-history-back");
       var backToMenuButton = document.getElementById("back-to-menu");
       var lnsBackToMenuButton = document.getElementById("lns-back-to-menu");
       var lnsForm = document.getElementById("lns-form");
@@ -1988,12 +2110,14 @@
       function showRequestedView() {
         var showPkgForm = window.location.hash === "#pkg-update";
         var showLnsForm = window.location.hash === "#lns-iq-check";
-        formsMenuView.hidden = showPkgForm || showLnsForm;
+        var showVersionHistory = window.location.hash === "#version-history";
+        formsMenuView.hidden = showPkgForm || showLnsForm || showVersionHistory;
+        versionHistoryView.hidden = !showVersionHistory;
         pkgFormView.hidden = !showPkgForm;
         lnsFormView.hidden = !showLnsForm;
         document.title = showPkgForm
           ? "PKG DL Update"
-          : (showLnsForm ? "LNS IQ Check" : "Copy/Paste Forms");
+          : (showLnsForm ? "LNS IQ Check" : (showVersionHistory ? "Version History" : "Copy/Paste Forms"));
         window.scrollTo(0, 0);
       }
 
@@ -2011,6 +2135,14 @@
           return;
         }
         window.location.hash = "lns-iq-check";
+      }
+
+      function openVersionHistory() {
+        if (window.location.hash === "#version-history") {
+          showRequestedView();
+          return;
+        }
+        window.location.hash = "version-history";
       }
 
       function openFormsMenu() {
@@ -3172,6 +3304,8 @@
       resetButton.addEventListener("click", resetForm);
       openPkgButton.addEventListener("click", openPkgForm);
       openLnsButton.addEventListener("click", openLnsForm);
+      openVersionHistoryButton.addEventListener("click", openVersionHistory);
+      versionHistoryBackButton.addEventListener("click", openFormsMenu);
       backToMenuButton.addEventListener("click", openFormsMenu);
       lnsBackToMenuButton.addEventListener("click", openFormsMenu);
       lnsResetButton.addEventListener("click", startNewLnsCheck);
