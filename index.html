@@ -1084,10 +1084,10 @@
         </div>
         <div class="actions">
           <button id="copy-report" class="button button-primary" type="button">Copy report</button>
-          <button id="reset-form" class="button button-secondary" type="button">Reset</button>
+          <button id="reset-form" class="button button-secondary" type="button">Start new report</button>
         </div>
         <p id="copy-status" class="status" role="status" aria-live="polite"></p>
-        <p class="privacy-note">Nothing is submitted or stored. The form starts fresh each time this file is opened.</p>
+        <p id="draft-note" class="privacy-note" role="status" aria-live="polite">Drafts are saved only in this browser and automatically deleted one hour after the last change.</p>
       </aside>
     </div>
   </main>
@@ -1144,6 +1144,12 @@
       };
       var nextRowId = 1;
       var statusTimer = null;
+      var draftSaveTimer = null;
+      var draftExpiryTimer = null;
+      var draftSavingEnabled = false;
+      var DRAFT_KEY = "pkg-dl-update-draft-v1";
+      var DRAFT_VERSION = 1;
+      var DRAFT_TTL_MS = 60 * 60 * 1000;
       var themeSelect = document.getElementById("theme-select");
       var themeColorMeta = document.querySelector('meta[name="theme-color"]');
       var form = document.getElementById("review-form");
@@ -1158,6 +1164,7 @@
       var copyButton = document.getElementById("copy-report");
       var resetButton = document.getElementById("reset-form");
       var status = document.getElementById("copy-status");
+      var draftNote = document.getElementById("draft-note");
       var themeColors = {
         matcha: "#30492d",
         sakura: "#7c344f",
@@ -1165,12 +1172,229 @@
         lavender: "#564076",
         pokemon: "#1d2c5e"
       };
+      var draftStorage = getDraftStorage();
+
+      function getDraftStorage() {
+        var candidates = [];
+        try {
+          if (window.localStorage) candidates.push(window.localStorage);
+        } catch (error) {
+          // Some mobile file viewers block local storage.
+        }
+        try {
+          if (window.sessionStorage) candidates.push(window.sessionStorage);
+        } catch (error) {
+          // Continue without draft recovery if all browser storage is blocked.
+        }
+
+        for (var index = 0; index < candidates.length; index += 1) {
+          try {
+            var testKey = DRAFT_KEY + "-test";
+            candidates[index].setItem(testKey, "1");
+            candidates[index].removeItem(testKey);
+            return candidates[index];
+          } catch (error) {
+            // Try the next available browser storage option.
+          }
+        }
+        return null;
+      }
+
+      function setDraftNote(message) {
+        if (draftNote) draftNote.textContent = message;
+      }
+
+      function savedTimeText(timestamp) {
+        try {
+          return new Date(timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        } catch (error) {
+          return new Date(timestamp).toLocaleTimeString();
+        }
+      }
+
+      function clearDraftTimers() {
+        if (draftSaveTimer) window.clearTimeout(draftSaveTimer);
+        if (draftExpiryTimer) window.clearTimeout(draftExpiryTimer);
+        draftSaveTimer = null;
+        draftExpiryTimer = null;
+      }
+
+      function removeSavedDraft() {
+        if (!draftStorage) return;
+        try {
+          draftStorage.removeItem(DRAFT_KEY);
+        } catch (error) {
+          // The visible form can continue working even if storage becomes unavailable.
+        }
+      }
+
+      function expireSavedDraft() {
+        if (draftStorage) {
+          try {
+            var currentRawDraft = draftStorage.getItem(DRAFT_KEY);
+            var currentDraft = currentRawDraft ? JSON.parse(currentRawDraft) : null;
+            if (currentDraft && isFinite(currentDraft.savedAt) && Date.now() - currentDraft.savedAt < DRAFT_TTL_MS) {
+              scheduleDraftExpiry(currentDraft.savedAt);
+              return;
+            }
+          } catch (error) {
+            // Invalid draft data is removed below.
+          }
+        }
+        removeSavedDraft();
+        draftExpiryTimer = null;
+        setDraftNote("The saved draft expired after one hour. Current entries remain on screen and will be protected again after your next change.");
+      }
+
+      function scheduleDraftExpiry(savedAt) {
+        if (draftExpiryTimer) window.clearTimeout(draftExpiryTimer);
+        draftExpiryTimer = null;
+        var remaining = DRAFT_TTL_MS - (Date.now() - savedAt);
+        if (remaining <= 0) {
+          expireSavedDraft();
+          return;
+        }
+        draftExpiryTimer = window.setTimeout(expireSavedDraft, remaining + 50);
+      }
+
+      function categoryDraftRows(categoryId) {
+        var rows = [];
+        Array.prototype.forEach.call(categoryRows(categoryId), function (row) {
+          rows.push({
+            name: row.querySelector(".item-input").value,
+            amount: row.querySelector(".item-amount").value,
+            comment: row.querySelector(".item-comment").value,
+            fixed: row.getAttribute("data-fixed") === "true"
+          });
+        });
+        return rows;
+      }
+
+      function collectDraftState() {
+        var categoryData = {};
+        activeSections().forEach(function (section) {
+          section.categories.forEach(function (category) {
+            categoryData[category.id] = categoryDraftRows(category.id);
+          });
+        });
+        return {
+          version: DRAFT_VERSION,
+          savedAt: Date.now(),
+          building: selectedBuilding(),
+          machine: machine.value,
+          reviewDate: reviewDate.value,
+          startTime: startTime.value,
+          endTime: endTime.value,
+          theme: themeSelect.value,
+          categories: categoryData
+        };
+      }
+
+      function saveDraftNow() {
+        draftSaveTimer = null;
+        if (!draftSavingEnabled || !draftStorage) return;
+        var draft = collectDraftState();
+        try {
+          draftStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+          scheduleDraftExpiry(draft.savedAt);
+          setDraftNote("Draft saved on this phone at " + savedTimeText(draft.savedAt) + ". It will be deleted after one hour without changes.");
+        } catch (error) {
+          setDraftNote("This phone blocked draft saving. Keep this screen open until the report is copied.");
+        }
+      }
+
+      function queueDraftSave() {
+        if (!draftSavingEnabled || !draftStorage) return;
+        if (draftSaveTimer) window.clearTimeout(draftSaveTimer);
+        draftSaveTimer = window.setTimeout(saveDraftNow, 250);
+      }
+
+      function flushDraftSave() {
+        if (!draftSaveTimer) return;
+        window.clearTimeout(draftSaveTimer);
+        draftSaveTimer = null;
+        saveDraftNow();
+      }
+
+      function readSavedDraft() {
+        if (!draftStorage) return null;
+        try {
+          var rawDraft = draftStorage.getItem(DRAFT_KEY);
+          if (!rawDraft) return null;
+          var draft = JSON.parse(rawDraft);
+          if (!draft || draft.version !== DRAFT_VERSION || !isFinite(draft.savedAt)) {
+            removeSavedDraft();
+            return null;
+          }
+          if (Date.now() - draft.savedAt >= DRAFT_TTL_MS) {
+            expireSavedDraft();
+            return null;
+          }
+          return draft;
+        } catch (error) {
+          removeSavedDraft();
+          return null;
+        }
+      }
+
+      function chooseSelectValue(select, value) {
+        var options = select.options;
+        for (var index = 0; index < options.length; index += 1) {
+          if (options[index].value === value) {
+            select.value = value;
+            return true;
+          }
+        }
+        return false;
+      }
+
+      function restoreDraft(draft) {
+        if (!draft) return false;
+
+        var requestedBuilding = draft.building === "MI1" ? "MI1" : "MI2";
+        Array.prototype.forEach.call(buildingInputs, function (buildingInput) {
+          buildingInput.checked = buildingInput.value === requestedBuilding;
+        });
+        updateMachineOptions();
+        fillTimeMenus();
+        applyTheme(draft.theme);
+        renderSections();
+
+        chooseSelectValue(machine, draft.machine);
+        if (typeof draft.reviewDate === "string" && draft.reviewDate) reviewDate.value = draft.reviewDate;
+        chooseSelectValue(startTime, draft.startTime);
+        chooseSelectValue(endTime, draft.endTime);
+
+        var categoryData = draft.categories || {};
+        activeSections().forEach(function (section) {
+          section.categories.forEach(function (category) {
+            var savedRows = categoryData[category.id];
+            var list = document.getElementById(category.id + "-list");
+            if (!list || !Array.isArray(savedRows) || savedRows.length === 0) return;
+            list.innerHTML = "";
+            savedRows.forEach(function (savedRow) {
+              addRow(section, category, false, {
+                name: typeof savedRow.name === "string" ? savedRow.name : "",
+                amount: typeof savedRow.amount === "string" ? savedRow.amount : "1",
+                comment: typeof savedRow.comment === "string" ? savedRow.comment : "",
+                fixed: Boolean(savedRow.fixed)
+              });
+            });
+          });
+        });
+
+        updateReport({ skipDraftSave: true });
+        scheduleDraftExpiry(draft.savedAt);
+        setDraftNote("Draft restored from " + savedTimeText(draft.savedAt) + ". It will be deleted after one hour without changes.");
+        return true;
+      }
 
       function applyTheme(themeName) {
         var safeTheme = themeColors[themeName] ? themeName : "matcha";
         document.documentElement.setAttribute("data-theme", safeTheme);
         themeSelect.value = safeTheme;
         if (themeColorMeta) themeColorMeta.setAttribute("content", themeColors[safeTheme]);
+        queueDraftSave();
       }
 
       function pad2(value) {
@@ -1391,6 +1615,7 @@
         commentInput.type = "text";
         commentInput.placeholder = "Optional comment for this item";
         commentInput.autocomplete = "off";
+        commentInput.value = options.comment || "";
         commentWrap.appendChild(commentLabel);
         commentWrap.appendChild(commentInput);
 
@@ -1459,7 +1684,7 @@
         return total;
       }
 
-      function updateReport() {
+      function updateReport(options) {
         var displayedSections = activeSections();
         var lines = [
           machine.value + " PKG Image Review " + chatDate(reviewDate.value),
@@ -1490,6 +1715,7 @@
         });
 
         preview.value = lines.join("\n");
+        if (!options || !options.skipDraftSave) queueDraftSave();
       }
 
       function showStatus(message, isError) {
@@ -1514,7 +1740,7 @@
       }
 
       function copyReport() {
-        updateReport();
+        updateReport({ skipDraftSave: true });
         if (legacyCopy()) {
           copyButton.textContent = "Copied";
           showStatus("Copied! Paste the report into your work chat.", false);
@@ -1562,8 +1788,13 @@
 
       function resetForm() {
         if (!window.confirm("Clear this review and start over?")) return;
+        draftSavingEnabled = false;
+        clearDraftTimers();
+        removeSavedDraft();
         clearFormState(false, false);
-        showStatus("Form reset.", false);
+        draftSavingEnabled = true;
+        setDraftNote("New report started. Draft protection begins when you change a field.");
+        showStatus("New report started.", false);
         window.scrollTo(0, 0);
       }
 
@@ -1595,11 +1826,33 @@
       copyButton.addEventListener("click", copyReport);
       resetButton.addEventListener("click", resetForm);
 
-      clearFormState(true, true);
-      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-      window.addEventListener("pageshow", function () {
+      var savedDraft = readSavedDraft();
+      if (!restoreDraft(savedDraft)) {
         clearFormState(true, true);
-        window.scrollTo(0, 0);
+        if (draftStorage) {
+          setDraftNote("Draft protection is ready. Changes are saved on this phone for one hour.");
+        } else {
+          setDraftNote("This phone blocked draft saving. Keep this screen open until the report is copied.");
+        }
+      }
+      draftSavingEnabled = true;
+
+      window.addEventListener("pagehide", flushDraftSave);
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "hidden") {
+          flushDraftSave();
+        } else {
+          var currentDraft = readSavedDraft();
+          if (currentDraft) scheduleDraftExpiry(currentDraft.savedAt);
+        }
+      });
+      window.addEventListener("pageshow", function (event) {
+        if (!event.persisted) return;
+        var currentDraft = readSavedDraft();
+        if (!currentDraft) return;
+        draftSavingEnabled = false;
+        restoreDraft(currentDraft);
+        draftSavingEnabled = true;
       });
     }());
   </script>
