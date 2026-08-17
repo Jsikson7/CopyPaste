@@ -1760,7 +1760,7 @@
             <span class="form-tile-arrow" aria-hidden="true">›</span>
           </button>
         </div>
-        <p class="last-updated">Version 1.4 · Last updated: <time datetime="2026-08-17">August 17, 2026</time></p>
+        <p class="last-updated">Version 1.5 · Last updated: <time datetime="2026-08-17">August 17, 2026</time></p>
         <div class="version-history-link-wrap">
           <button id="open-version-history" class="version-history-link" type="button">View version history</button>
         </div>
@@ -1780,6 +1780,13 @@
       <section class="panel" aria-label="Release history">
         <div class="version-history-list">
           <article class="version-card version-card-current">
+            <div class="version-card-heading">
+              <h2>Version 1.5</h2>
+              <time datetime="2026-08-17">August 17, 2026</time>
+            </div>
+            <p>Added permanent memory for the last selected PKG building—MI1 or MI2—without adding a permanent machine preference.</p>
+          </article>
+          <article class="version-card">
             <div class="version-card-heading">
               <h2>Version 1.4</h2>
               <time datetime="2026-08-17">August 17, 2026</time>
@@ -2046,6 +2053,7 @@
       var DRAFT_VERSION = 1;
       var DRAFT_TTL_MS = 60 * 60 * 1000;
       var THEME_KEY = "copy-paste-preferred-theme-v1";
+      var BUILDING_KEY = "pkg-preferred-building-v1";
       var LNS_DRAFT_KEY = "lns-iq-check-draft-v1";
       var LNS_DRAFT_VERSION = 1;
       var LNS_DRAFT_TTL_MS = 12 * 60 * 60 * 1000;
@@ -2058,6 +2066,7 @@
       var themeColorMeta = document.querySelector('meta[name="theme-color"]');
       var form = document.getElementById("review-form");
       var buildingInputs = document.querySelectorAll('input[name="building"]');
+      var buildingMi1 = document.getElementById("building-mi1");
       var buildingMi2 = document.getElementById("building-mi2");
       var machine = document.getElementById("machine");
       var reviewDate = document.getElementById("review-date");
@@ -2207,6 +2216,25 @@
           themeStorage.setItem(THEME_KEY, themeName);
         } catch (error) {
           // The selected theme still applies for the current session.
+        }
+      }
+
+      function readSavedBuilding() {
+        if (!themeStorage) return "";
+        try {
+          var savedBuilding = themeStorage.getItem(BUILDING_KEY) || "";
+          return savedBuilding === "MI1" || savedBuilding === "MI2" ? savedBuilding : "";
+        } catch (error) {
+          return "";
+        }
+      }
+
+      function savePreferredBuilding(buildingName) {
+        if (!themeStorage || (buildingName !== "MI1" && buildingName !== "MI2")) return;
+        try {
+          themeStorage.setItem(BUILDING_KEY, buildingName);
+        } catch (error) {
+          // The selected building still applies for the current session.
         }
       }
 
@@ -2361,10 +2389,11 @@
       function restoreDraft(draft) {
         if (!draft) return false;
 
-        var requestedBuilding = draft.building === "MI1" ? "MI1" : "MI2";
+        var requestedBuilding = readSavedBuilding() || (draft.building === "MI1" ? "MI1" : "MI2");
         Array.prototype.forEach.call(buildingInputs, function (buildingInput) {
           buildingInput.checked = buildingInput.value === requestedBuilding;
         });
+        savePreferredBuilding(requestedBuilding);
         updateMachineOptions();
         fillTimeMenus();
         applyTheme(readSavedTheme() || draft.theme);
@@ -3248,7 +3277,12 @@
         if (statusTimer) window.clearTimeout(statusTimer);
         status.textContent = "";
         status.className = "status";
-        if (resetBuilding) buildingMi2.checked = true;
+        if (resetBuilding) {
+          var preferredBuilding = readSavedBuilding() || "MI2";
+          buildingMi1.checked = preferredBuilding === "MI1";
+          buildingMi2.checked = preferredBuilding === "MI2";
+          savePreferredBuilding(preferredBuilding);
+        }
         updateMachineOptions();
         fillTimeMenus();
         var times = currentTimes();
@@ -3289,6 +3323,7 @@
       Array.prototype.forEach.call(buildingInputs, function (buildingInput) {
         buildingInput.addEventListener("change", function () {
           if (!buildingInput.checked) return;
+          savePreferredBuilding(buildingInput.value);
           updateMachineOptions();
           fillTimeMenus();
           var times = currentTimes();
