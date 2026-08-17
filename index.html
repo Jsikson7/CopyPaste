@@ -1531,6 +1531,19 @@
       border-top: 0;
     }
 
+    .ngs-photo-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .ngs-photo-card {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--section-tone-1);
+    }
+
     .ngs-upload-box {
       display: grid;
       gap: 12px;
@@ -1606,6 +1619,7 @@
       display: grid;
       grid-template-columns: minmax(0, 1fr);
       gap: 10px;
+      margin-top: 14px;
     }
 
     .ngs-progress {
@@ -1785,6 +1799,10 @@
       .ngs-upload-section,
       .ngs-results-section {
         padding: 20px 22px;
+      }
+
+      .ngs-photo-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .ngs-scan-actions {
@@ -1988,7 +2006,7 @@
               <h2>Version 1.8</h2>
               <time datetime="2026-08-17">August 17, 2026</time>
             </div>
-            <p>Added No Response NGS with private on-device screenshot scanning, editable highlighted results, automatic totals, and a compact copy-ready report.</p>
+            <p>Added No Response NGS with private on-device scanning, editable results, earlier-versus-current photo comparison, automatic increases, and highest-to-lowest report sorting.</p>
           </article>
           <article class="version-card">
             <div class="version-card-heading">
@@ -2239,37 +2257,57 @@
           </div>
 
           <div class="ngs-upload-section">
-            <div class="ngs-upload-box">
-              <h3>Select the No Response Dashboard image</h3>
-              <p>PNG, JPG, and phone screenshots are supported. Keep the entire dashboard visible and avoid cropping the edges.</p>
-              <div>
-                <input id="ngs-image-input" class="ngs-file-input" type="file" accept="image/png,image/jpeg,image/webp,image/*">
-                <label id="ngs-file-label" class="ngs-file-label" for="ngs-image-input">Choose screenshot or photo</label>
+            <div class="ngs-photo-grid">
+              <div class="ngs-photo-card">
+                <div class="ngs-upload-box">
+                  <h3>1. Earlier screenshot</h3>
+                  <p>Optional. Add the older dashboard when you want to calculate increases.</p>
+                  <div>
+                    <input id="ngs-baseline-input" class="ngs-file-input" type="file" accept="image/png,image/jpeg,image/webp,image/*">
+                    <label id="ngs-baseline-label" class="ngs-file-label" for="ngs-baseline-input">Choose earlier photo</label>
+                  </div>
+                </div>
+                <div id="ngs-baseline-wrap" class="ngs-image-wrap" hidden>
+                  <img id="ngs-baseline-preview" class="ngs-image-preview" alt="Selected earlier No Response Dashboard screenshot">
+                  <button id="ngs-change-baseline" class="button button-secondary" type="button">Choose another earlier photo</button>
+                </div>
+              </div>
+
+              <div class="ngs-photo-card">
+                <div class="ngs-upload-box">
+                  <h3>2. Current screenshot</h3>
+                  <p>Required. Use the newest full dashboard screenshot with all edges visible.</p>
+                  <div>
+                    <input id="ngs-image-input" class="ngs-file-input" type="file" accept="image/png,image/jpeg,image/webp,image/*">
+                    <label id="ngs-file-label" class="ngs-file-label" for="ngs-image-input">Choose current photo</label>
+                  </div>
+                </div>
+                <div id="ngs-image-wrap" class="ngs-image-wrap" hidden>
+                  <img id="ngs-image-preview" class="ngs-image-preview" alt="Selected current No Response Dashboard screenshot">
+                  <button id="ngs-change-image" class="button button-secondary" type="button">Choose another current photo</button>
+                </div>
               </div>
             </div>
 
-            <div id="ngs-image-wrap" class="ngs-image-wrap" hidden>
-              <img id="ngs-image-preview" class="ngs-image-preview" alt="Selected No Response Dashboard screenshot">
-              <div class="ngs-scan-actions">
-                <button id="ngs-scan" class="button button-primary" type="button">Read highlighted values</button>
-                <button id="ngs-change-image" class="button button-secondary" type="button">Choose another image</button>
-              </div>
-              <progress id="ngs-progress" class="ngs-progress" max="100" value="0" hidden></progress>
-              <p id="ngs-scan-status" class="ngs-scan-status" role="status" aria-live="polite"></p>
+            <div class="ngs-scan-actions">
+              <button id="ngs-scan" class="button button-primary" type="button">Read current values</button>
+              <button id="ngs-compare" class="button button-secondary" type="button">Compare both photos</button>
             </div>
+            <progress id="ngs-progress" class="ngs-progress" max="100" value="0" hidden></progress>
+            <p id="ngs-scan-status" class="ngs-scan-status" role="status" aria-live="polite"></p>
           </div>
 
           <div class="ngs-results-section">
             <div class="ngs-results-heading">
               <div>
                 <h3>Detected results</h3>
-                <p>Review every line before copying. Each value can be corrected manually.</p>
+                <p id="ngs-results-description">Review every line before copying. Each value can be corrected manually.</p>
               </div>
             </div>
             <div class="ngs-result-labels" aria-hidden="true">
               <span>Line</span>
               <span>Station</span>
-              <span>Count</span>
+              <span id="ngs-count-label">Count</span>
               <span></span>
             </div>
             <div id="ngs-result-list" class="ngs-result-list"></div>
@@ -2409,6 +2447,9 @@
       var ngsOcrScriptPromise = null;
       var ngsSourceImage = null;
       var ngsObjectUrl = "";
+      var ngsBaselineImage = null;
+      var ngsBaselineObjectUrl = "";
+      var ngsReportMode = "single";
       var ngsScanInProgress = false;
       var themeSelect = document.getElementById("theme-select");
       var themeColorMeta = document.querySelector('meta[name="theme-color"]');
@@ -2453,15 +2494,23 @@
       var lnsDraftNote = document.getElementById("lns-draft-note");
       var ngsBackToMenuButton = document.getElementById("ngs-back-to-menu");
       var ngsResetButton = document.getElementById("ngs-reset");
+      var ngsBaselineInput = document.getElementById("ngs-baseline-input");
+      var ngsBaselineLabel = document.getElementById("ngs-baseline-label");
+      var ngsBaselineWrap = document.getElementById("ngs-baseline-wrap");
+      var ngsBaselinePreview = document.getElementById("ngs-baseline-preview");
+      var ngsChangeBaselineButton = document.getElementById("ngs-change-baseline");
       var ngsImageInput = document.getElementById("ngs-image-input");
       var ngsFileLabel = document.getElementById("ngs-file-label");
       var ngsImageWrap = document.getElementById("ngs-image-wrap");
       var ngsImagePreview = document.getElementById("ngs-image-preview");
       var ngsScanButton = document.getElementById("ngs-scan");
+      var ngsCompareButton = document.getElementById("ngs-compare");
       var ngsChangeImageButton = document.getElementById("ngs-change-image");
       var ngsProgress = document.getElementById("ngs-progress");
       var ngsScanStatus = document.getElementById("ngs-scan-status");
       var ngsResultList = document.getElementById("ngs-result-list");
+      var ngsResultsDescription = document.getElementById("ngs-results-description");
+      var ngsCountLabel = document.getElementById("ngs-count-label");
       var ngsAddRowButton = document.getElementById("ngs-add-row");
       var ngsReportPreview = document.getElementById("ngs-report-preview");
       var ngsCopyButton = document.getElementById("ngs-copy-report");
@@ -3281,11 +3330,15 @@
 
       function setNgsBusy(isBusy) {
         ngsScanInProgress = isBusy;
+        ngsBaselineInput.disabled = isBusy;
         ngsImageInput.disabled = isBusy;
         ngsScanButton.disabled = isBusy;
+        ngsCompareButton.disabled = isBusy;
+        ngsChangeBaselineButton.disabled = isBusy;
         ngsChangeImageButton.disabled = isBusy;
         ngsResetButton.disabled = isBusy;
         ngsAddRowButton.disabled = isBusy;
+        ngsBaselineLabel.setAttribute("aria-disabled", isBusy ? "true" : "false");
         ngsFileLabel.setAttribute("aria-disabled", isBusy ? "true" : "false");
         ngsProgress.hidden = !isBusy;
         if (!isBusy) ngsProgress.value = 0;
@@ -3348,7 +3401,7 @@
         countInput.pattern = "[0-9]*";
         countInput.value = safeResult.count || "";
         countInput.placeholder = "#";
-        countInput.setAttribute("aria-label", "No Response count");
+        countInput.setAttribute("aria-label", ngsReportMode === "compare" ? "No Response increase" : "No Response count");
 
         removeButton.type = "button";
         removeButton.setAttribute("aria-label", "Remove " + lineSelect.value + " result");
@@ -3377,7 +3430,12 @@
         return row;
       }
 
-      function setNgsResults(results) {
+      function setNgsResults(results, mode) {
+        ngsReportMode = mode === "compare" ? "compare" : "single";
+        ngsCountLabel.textContent = ngsReportMode === "compare" ? "Increase" : "Count";
+        ngsResultsDescription.textContent = ngsReportMode === "compare"
+          ? "Only positive increases are listed. Review and correct each increase before copying."
+          : "Review every line before copying. Each value can be corrected manually.";
         ngsResultList.innerHTML = "";
         (results || []).forEach(function (result) {
           addNgsResultRow(result);
@@ -3400,34 +3458,37 @@
           });
         });
         results.sort(function (left, right) {
+          var countDifference = right.count - left.count;
           var rowDifference = ngsRowOrder(left.line) - ngsRowOrder(right.line);
-          return rowDifference || (ngsColumnOrder(left.station) - ngsColumnOrder(right.station));
+          return countDifference || rowDifference || (ngsColumnOrder(left.station) - ngsColumnOrder(right.station));
         });
         return results;
       }
 
       function updateNgsPreview() {
         var results = collectNgsResults();
-        var lines = ["No Response NGS", ""];
+        var isComparison = ngsReportMode === "compare";
+        var lines = [isComparison ? "No Response NGS - Increase" : "No Response NGS", ""];
         var total = 0;
 
         if (!results.length) {
-          lines.push("No highlighted values.");
+          lines.push(isComparison ? "No increases found." : "No highlighted values.");
         } else {
           results.forEach(function (result) {
             total += result.count;
-            lines.push(result.line + ": " + result.station + " - " + result.count);
+            lines.push(result.line + ": " + result.station + " - " + (isComparison ? "+" : "") + result.count);
           });
         }
 
         lines.push("");
-        lines.push("Total: " + total);
+        lines.push((isComparison ? "Total Increase: +" : "Total: ") + total);
         ngsReportPreview.value = lines.join("\n");
       }
 
-      function handleNgsImageChange() {
+      function loadNgsSelectedImage(input, imageRole) {
         if (ngsScanInProgress) return;
-        var file = ngsImageInput.files && ngsImageInput.files[0];
+        var isBaseline = imageRole === "baseline";
+        var file = input.files && input.files[0];
         if (!file) return;
         if (!/^image\//i.test(file.type || "")) {
           showNgsScanStatus("Choose a PNG, JPG, or other image file.", true);
@@ -3438,38 +3499,68 @@
           return;
         }
 
-        if (ngsObjectUrl) window.URL.revokeObjectURL(ngsObjectUrl);
-        ngsObjectUrl = window.URL.createObjectURL(file);
+        var selectedUrl = window.URL.createObjectURL(file);
         var selectedImage = new Image();
         selectedImage.onload = function () {
-          ngsSourceImage = selectedImage;
-          ngsImagePreview.src = ngsObjectUrl;
-          ngsImageWrap.hidden = false;
-          setNgsResults([]);
-          showNgsScanStatus("Image ready. Tap Read highlighted values.", false);
+          if (isBaseline) {
+            if (ngsBaselineObjectUrl) window.URL.revokeObjectURL(ngsBaselineObjectUrl);
+            ngsBaselineObjectUrl = selectedUrl;
+            ngsBaselineImage = selectedImage;
+            ngsBaselinePreview.src = ngsBaselineObjectUrl;
+            ngsBaselineWrap.hidden = false;
+            showNgsScanStatus(ngsSourceImage ? "Both photos are ready. Tap Compare both photos." : "Earlier photo ready. Choose the current photo next.", false);
+          } else {
+            if (ngsObjectUrl) window.URL.revokeObjectURL(ngsObjectUrl);
+            ngsObjectUrl = selectedUrl;
+            ngsSourceImage = selectedImage;
+            ngsImagePreview.src = ngsObjectUrl;
+            ngsImageWrap.hidden = false;
+            showNgsScanStatus(ngsBaselineImage ? "Both photos are ready. Tap Compare both photos." : "Current photo ready. Tap Read current values.", false);
+          }
+          setNgsResults([], "single");
         };
         selectedImage.onerror = function () {
-          ngsSourceImage = null;
-          ngsImageWrap.hidden = true;
+          window.URL.revokeObjectURL(selectedUrl);
+          if (isBaseline) {
+            ngsBaselineImage = null;
+            ngsBaselineWrap.hidden = true;
+          } else {
+            ngsSourceImage = null;
+            ngsImageWrap.hidden = true;
+          }
           showNgsScanStatus("This image could not be opened. Choose another screenshot.", true);
         };
-        selectedImage.src = ngsObjectUrl;
+        selectedImage.src = selectedUrl;
+      }
+
+      function handleNgsImageChange() {
+        loadNgsSelectedImage(ngsImageInput, "current");
+      }
+
+      function handleNgsBaselineChange() {
+        loadNgsSelectedImage(ngsBaselineInput, "baseline");
       }
 
       function resetNgsReport(askFirst) {
-        var hasImage = Boolean(ngsSourceImage);
+        var hasImage = Boolean(ngsSourceImage || ngsBaselineImage);
         var hasResults = Boolean(ngsResultList.querySelector(".ngs-result-row"));
         if (askFirst && (hasImage || hasResults) && !window.confirm("Clear this NGS scan and start over?")) return;
         if (ngsObjectUrl) window.URL.revokeObjectURL(ngsObjectUrl);
+        if (ngsBaselineObjectUrl) window.URL.revokeObjectURL(ngsBaselineObjectUrl);
         ngsObjectUrl = "";
+        ngsBaselineObjectUrl = "";
         ngsSourceImage = null;
+        ngsBaselineImage = null;
         ngsImageInput.value = "";
+        ngsBaselineInput.value = "";
         ngsImagePreview.removeAttribute("src");
+        ngsBaselinePreview.removeAttribute("src");
         ngsImageWrap.hidden = true;
+        ngsBaselineWrap.hidden = true;
         showNgsScanStatus("", false);
         ngsCopyStatus.textContent = "";
         ngsCopyStatus.className = "status";
-        setNgsResults([]);
+        setNgsResults([], "single");
         setNgsBusy(false);
         window.scrollTo(0, 0);
       }
@@ -3666,13 +3757,14 @@
         return ngsOcrScriptPromise;
       }
 
-      function recognizeNgsCounts(worker, sourceCanvas, mappedResults) {
+      function recognizeNgsCounts(worker, sourceCanvas, mappedResults, scanLabel, startPercent, endPercent) {
         var recognized = [];
         var sequence = Promise.resolve();
+        if (!mappedResults.length) return sequence.then(function () { return recognized; });
         mappedResults.forEach(function (result, index) {
           sequence = sequence.then(function () {
-            ngsProgress.value = Math.round(15 + (index / mappedResults.length) * 80);
-            showNgsScanStatus("Reading highlighted value " + (index + 1) + " of " + mappedResults.length + "…", false);
+            ngsProgress.value = Math.round(startPercent + (index / mappedResults.length) * (endPercent - startPercent));
+            showNgsScanStatus("Reading " + scanLabel + " value " + (index + 1) + " of " + mappedResults.length + "…", false);
             return worker.recognize(createNgsDigitCanvas(sourceCanvas, result.region)).then(function (recognition) {
               var rawText = recognition && recognition.data ? recognition.data.text : "";
               var numberMatch = String(rawText || "").match(/\d+/);
@@ -3728,11 +3820,11 @@
               tessedit_pageseg_mode: "6"
             });
           }).then(function () {
-            return recognizeNgsCounts(worker, analysisCanvas, mappedResults);
+            return recognizeNgsCounts(worker, analysisCanvas, mappedResults, "current", 15, 95);
           });
         }).then(function (recognizedResults) {
           ngsProgress.value = 100;
-          setNgsResults(recognizedResults);
+          setNgsResults(recognizedResults, "single");
           var missingCount = recognizedResults.filter(function (result) {
             return !result.count;
           }).length;
@@ -3744,8 +3836,123 @@
         }).catch(function () {
           setNgsResults(mappedResults.map(function (result) {
             return { line: result.line, station: result.station, count: "" };
-          }));
+          }), "single");
           showNgsScanStatus("The highlighted cells were found, but their numbers could not be read. Enter the counts manually and review the preview.", true);
+        }).then(function () {
+          if (worker) return worker.terminate().catch(function () {});
+          return null;
+        }).then(function () {
+          setNgsBusy(false);
+        });
+      }
+
+      function compareNgsResultSets(earlierResults, currentResults) {
+        var cells = {};
+
+        function addResults(results, propertyName) {
+          (results || []).forEach(function (result) {
+            var count = parseInt(result.count, 10);
+            if (!isFinite(count) || count < 1) return;
+            var key = result.line + "|" + result.station;
+            if (!cells[key]) {
+              cells[key] = {
+                line: result.line,
+                station: result.station,
+                earlier: 0,
+                current: 0
+              };
+            }
+            cells[key][propertyName] = count;
+          });
+        }
+
+        addResults(earlierResults, "earlier");
+        addResults(currentResults, "current");
+
+        return Object.keys(cells).map(function (key) {
+          var cell = cells[key];
+          return {
+            line: cell.line,
+            station: cell.station,
+            count: cell.current - cell.earlier
+          };
+        }).filter(function (result) {
+          return result.count > 0;
+        }).sort(function (left, right) {
+          var countDifference = right.count - left.count;
+          var rowDifference = ngsRowOrder(left.line) - ngsRowOrder(right.line);
+          return countDifference || rowDifference || (ngsColumnOrder(left.station) - ngsColumnOrder(right.station));
+        });
+      }
+
+      function compareNgsImages() {
+        if (ngsScanInProgress) return;
+        if (!ngsBaselineImage || !ngsSourceImage) {
+          showNgsScanStatus("Choose both the earlier and current dashboard photos before comparing.", true);
+          return;
+        }
+
+        setNgsBusy(true);
+        ngsProgress.value = 4;
+        showNgsScanStatus("Finding highlighted cells in both photos…", false);
+        var earlierCanvas;
+        var currentCanvas;
+        var earlierMapped;
+        var currentMapped;
+        var earlierRecognized = [];
+        var currentRecognized = [];
+        var worker = null;
+
+        try {
+          earlierCanvas = createNgsAnalysisCanvas(ngsBaselineImage);
+          currentCanvas = createNgsAnalysisCanvas(ngsSourceImage);
+          earlierMapped = mapNgsRegions(earlierCanvas, findNgsHighlightRegions(earlierCanvas));
+          currentMapped = mapNgsRegions(currentCanvas, findNgsHighlightRegions(currentCanvas));
+        } catch (error) {
+          setNgsBusy(false);
+          showNgsScanStatus("The photos could not be compared. Try clear, uncropped dashboard screenshots.", true);
+          return;
+        }
+
+        if (!earlierMapped.length && !currentMapped.length) {
+          setNgsResults([], "compare");
+          setNgsBusy(false);
+          showNgsScanStatus("No amber highlighted cells were found in either photo.", true);
+          return;
+        }
+
+        ngsProgress.value = 10;
+        showNgsScanStatus("Loading the number reader for both photos…", false);
+        loadNgsOcrLibrary().then(function (tesseract) {
+          return tesseract.createWorker("eng", 1).then(function (createdWorker) {
+            worker = createdWorker;
+            return worker.setParameters({
+              tessedit_char_whitelist: "0123456789",
+              tessedit_pageseg_mode: "6"
+            });
+          }).then(function () {
+            return recognizeNgsCounts(worker, earlierCanvas, earlierMapped, "earlier-photo", 12, 50);
+          }).then(function (results) {
+            earlierRecognized = results;
+            return recognizeNgsCounts(worker, currentCanvas, currentMapped, "current-photo", 52, 95);
+          }).then(function (results) {
+            currentRecognized = results;
+          });
+        }).then(function () {
+          ngsProgress.value = 100;
+          var increases = compareNgsResultSets(earlierRecognized, currentRecognized);
+          setNgsResults(increases, "compare");
+          var missingCount = earlierRecognized.concat(currentRecognized).filter(function (result) {
+            return !result.count;
+          }).length;
+          if (missingCount) {
+            showNgsScanStatus("Comparison complete with " + missingCount + " unread count" + (missingCount === 1 ? "" : "s") + ". Review and correct the displayed increases before copying.", true);
+          } else {
+            showNgsScanStatus("Comparison complete. Positive increases are sorted from highest to lowest.", false);
+          }
+        }).catch(function () {
+          setNgsResults([], "compare");
+          showNgsScanStatus("The photos were found, but their numbers could not be compared. Check your connection and try again.", true);
         }).then(function () {
           if (worker) return worker.terminate().catch(function () {});
           return null;
@@ -4245,8 +4452,15 @@
       ngsResetButton.addEventListener("click", function () {
         resetNgsReport(true);
       });
+      ngsBaselineInput.addEventListener("change", handleNgsBaselineChange);
       ngsImageInput.addEventListener("change", handleNgsImageChange);
       ngsScanButton.addEventListener("click", analyzeNgsImage);
+      ngsCompareButton.addEventListener("click", compareNgsImages);
+      ngsChangeBaselineButton.addEventListener("click", function () {
+        if (ngsScanInProgress) return;
+        ngsBaselineInput.value = "";
+        ngsBaselineInput.click();
+      });
       ngsChangeImageButton.addEventListener("click", function () {
         if (ngsScanInProgress) return;
         ngsImageInput.value = "";
