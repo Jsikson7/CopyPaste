@@ -1570,7 +1570,7 @@
               <label for="lns-time">Check time</label>
               <input id="lns-time" type="time" step="60" required>
             </div>
-            <p class="iq-instructions">Every checkpoint starts as ✅ OK. Tap once for ❌ Not OK, tap again to clear it, and tap once more to return to ✅ OK.</p>
+            <p class="iq-instructions">Every checkpoint starts as ✅ OK. Tap any checkpoint to switch between ✅ OK and ❌ Not OK.</p>
           </div>
 
           <div id="lns-check-sections" class="iq-sections"></div>
@@ -1980,26 +1980,24 @@
         }, 3200);
       }
 
-      function lnsStateIcon(state, forPreview) {
-        if (state === "ok") return "✅";
-        if (state === "ng") return "❌";
-        return forPreview ? "⬜" : "—";
+      function lnsStateIcon(state) {
+        return state === "ng" ? "❌" : "✅";
       }
 
       function setLnsCheckState(button, state) {
-        var safeState = state === "ok" || state === "ng" ? state : "unset";
+        var safeState = state === "ng" ? "ng" : "ok";
         var rowName = button.getAttribute("data-row");
         var columnName = button.getAttribute("data-column");
-        var stateName = safeState === "ok" ? "OK" : (safeState === "ng" ? "Not OK" : "not checked");
+        var stateName = safeState === "ok" ? "OK" : "Not OK";
         button.setAttribute("data-state", safeState);
-        button.textContent = lnsStateIcon(safeState, false);
+        button.textContent = lnsStateIcon(safeState);
         button.setAttribute("aria-label", rowName + " " + columnName + ": " + stateName + ". Tap to change.");
         button.title = rowName + " " + columnName + ": " + stateName;
       }
 
       function cycleLnsCheck(button) {
-        var currentState = button.getAttribute("data-state") || "unset";
-        var nextState = currentState === "unset" ? "ok" : (currentState === "ok" ? "ng" : "unset");
+        var currentState = button.getAttribute("data-state") || "ok";
+        var nextState = currentState === "ng" ? "ok" : "ng";
         setLnsCheckState(button, nextState);
         updateLnsPreview();
       }
@@ -2050,7 +2048,7 @@
           group.rows.forEach(function (rowName) {
             grid.appendChild(makeElement("span", "iq-row-label", rowName));
             lnsColumns.forEach(function (columnName) {
-              var checkButton = makeElement("button", "iq-check", "—");
+              var checkButton = makeElement("button", "iq-check", "✅");
               checkButton.type = "button";
               checkButton.setAttribute("data-row", rowName);
               checkButton.setAttribute("data-column", columnName);
@@ -2114,9 +2112,9 @@
             previewGrid.appendChild(makeElement("span", "iq-preview-cell iq-preview-row", rowName));
             lnsColumns.forEach(function (columnName) {
               var button = findLnsCheck(rowName, columnName);
-              var state = button ? button.getAttribute("data-state") : "unset";
-              var icon = makeElement("span", "iq-preview-cell", lnsStateIcon(state, true));
-              icon.setAttribute("aria-label", rowName + " " + columnName + " " + (state === "ok" ? "OK" : (state === "ng" ? "Not OK" : "blank")));
+              var state = button ? button.getAttribute("data-state") : "ok";
+              var icon = makeElement("span", "iq-preview-cell", lnsStateIcon(state));
+              icon.setAttribute("aria-label", rowName + " " + columnName + " " + (state === "ng" ? "Not OK" : "OK"));
               previewGrid.appendChild(icon);
             });
           });
@@ -2147,7 +2145,7 @@
           group.rows.forEach(function (rowName) {
             var icons = lnsColumns.map(function (columnName) {
               var button = findLnsCheck(rowName, columnName);
-              return lnsStateIcon(button ? button.getAttribute("data-state") : "unset", true);
+              return lnsStateIcon(button ? button.getAttribute("data-state") : "ok");
             });
             lines.push(
               padRight(rowName, 6) + "|   " + icons[0] + "    |   " + icons[1] + "    |   " + icons[2] + "    |   " + icons[3] + "    |"
@@ -2173,7 +2171,7 @@
           var rowName = button.getAttribute("data-row");
           var columnName = button.getAttribute("data-column");
           if (!checks[rowName]) checks[rowName] = {};
-          checks[rowName][columnName] = button.getAttribute("data-state") || "unset";
+          checks[rowName][columnName] = button.getAttribute("data-state") || "ok";
         });
         return {
           version: LNS_DRAFT_VERSION,
@@ -2290,7 +2288,7 @@
         Array.prototype.forEach.call(lnsCheckButtons(), function (button) {
           var rowName = button.getAttribute("data-row");
           var columnName = button.getAttribute("data-column");
-          var state = checks[rowName] && checks[rowName][columnName] ? checks[rowName][columnName] : "unset";
+          var state = checks[rowName] && checks[rowName][columnName] ? checks[rowName][columnName] : "ok";
           setLnsCheckState(button, state);
         });
         updateLnsPreview({ skipDraftSave: true });
