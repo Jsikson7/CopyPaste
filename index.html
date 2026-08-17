@@ -1520,6 +1520,187 @@
       text-align: center;
     }
 
+    .ngs-upload-section,
+    .ngs-results-section {
+      padding: 16px;
+      border-top: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .ngs-upload-section {
+      border-top: 0;
+    }
+
+    .ngs-upload-box {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border: 1px dashed var(--control-line);
+      border-radius: 12px;
+      background: var(--cream);
+      text-align: center;
+    }
+
+    .ngs-upload-box h3,
+    .ngs-results-heading h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .ngs-upload-box p,
+    .ngs-results-heading p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .ngs-file-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .ngs-file-label {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      justify-self: center;
+      padding: 11px 18px;
+      border: 1px solid var(--matcha-700);
+      border-radius: 10px;
+      background: var(--matcha-700);
+      color: #ffffff;
+      font-size: 0.86rem;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .ngs-file-input:focus + .ngs-file-label {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 3px;
+    }
+
+    .ngs-image-wrap {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .ngs-image-preview {
+      display: block;
+      width: 100%;
+      max-height: 420px;
+      border: 1px solid var(--preview-line);
+      border-radius: 12px;
+      background: #111820;
+      object-fit: contain;
+    }
+
+    .ngs-scan-actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .ngs-progress {
+      width: 100%;
+      height: 10px;
+      accent-color: var(--matcha-600);
+    }
+
+    .ngs-scan-status {
+      min-height: 22px;
+      margin: 0;
+      color: var(--secondary-ink);
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .ngs-scan-status.error {
+      color: var(--danger);
+    }
+
+    .ngs-results-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .ngs-result-labels,
+    .ngs-result-row {
+      display: grid;
+      grid-template-columns: minmax(58px, 0.65fr) minmax(112px, 1.35fr) 68px 42px;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .ngs-result-labels {
+      margin-bottom: 6px;
+      padding: 0 2px;
+      color: var(--column-label);
+      font-size: 0.64rem;
+      font-weight: 850;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .ngs-result-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .ngs-result-row {
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--cream);
+    }
+
+    .ngs-result-row select,
+    .ngs-result-row input {
+      min-width: 0;
+      min-height: 42px;
+      padding: 8px;
+      font-size: 0.8rem;
+      font-weight: 750;
+    }
+
+    .ngs-result-row .icon-button {
+      min-height: 42px;
+    }
+
+    .ngs-empty-results {
+      margin: 0;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--cream);
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .ngs-add-row {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .button:disabled,
+    .ngs-file-label[aria-disabled="true"] {
+      cursor: wait;
+      opacity: 0.6;
+    }
+
     .noscript {
       margin: 16px;
       padding: 14px;
@@ -1599,6 +1780,15 @@
       .forms-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         padding: 22px;
+      }
+
+      .ngs-upload-section,
+      .ngs-results-section {
+        padding: 20px 22px;
+      }
+
+      .ngs-scan-actions {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       }
 
       .field-wide {
@@ -1765,8 +1955,16 @@
             </span>
             <span class="form-tile-arrow" aria-hidden="true">›</span>
           </button>
+          <button id="open-ngs-form" class="form-tile" type="button">
+            <span class="form-tile-icon" aria-hidden="true">NGS</span>
+            <span class="form-tile-copy">
+              <strong>No Response NGS</strong>
+              <small>Scan a dashboard screenshot and copy the highlighted counts as text.</small>
+            </span>
+            <span class="form-tile-arrow" aria-hidden="true">›</span>
+          </button>
         </div>
-        <p class="last-updated">Version 1.7 · Last updated: <time datetime="2026-08-17">August 17, 2026</time></p>
+        <p class="last-updated">Version 1.8 · Last updated: <time datetime="2026-08-17">August 17, 2026</time></p>
         <div class="version-history-link-wrap">
           <button id="open-version-history" class="version-history-link" type="button">View version history</button>
         </div>
@@ -1786,6 +1984,13 @@
       <section class="panel" aria-label="Release history">
         <div class="version-history-list">
           <article class="version-card version-card-current">
+            <div class="version-card-heading">
+              <h2>Version 1.8</h2>
+              <time datetime="2026-08-17">August 17, 2026</time>
+            </div>
+            <p>Added No Response NGS with private on-device screenshot scanning, editable highlighted results, automatic totals, and a compact copy-ready report.</p>
+          </article>
+          <article class="version-card">
             <div class="version-card-heading">
               <h2>Version 1.7</h2>
               <time datetime="2026-08-17">August 17, 2026</time>
@@ -2005,6 +2210,91 @@
         </aside>
       </div>
     </section>
+
+    <section id="ngs-form-view" class="app-view" hidden>
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Copy/Paste to Kakao Tool</p>
+          <h1>No Response NGS</h1>
+          <p class="hero-copy">Upload the full dashboard screenshot, verify the detected values, then copy the report.</p>
+        </div>
+        <span class="menu-count">Screenshot scanner</span>
+      </header>
+
+      <noscript>
+        <p class="noscript">JavaScript must be enabled for screenshot scanning and report copying.</p>
+      </noscript>
+
+      <div class="workspace ngs-workspace">
+        <section class="panel form-panel" aria-label="No Response NGS screenshot scanner">
+          <div class="panel-heading">
+            <div>
+              <h2>Dashboard screenshot</h2>
+              <p>Use a clear, full screenshot that includes the line names and highlighted cells.</p>
+            </div>
+            <div class="panel-heading-actions">
+              <button id="ngs-back-to-menu" class="button button-secondary top-action-button" type="button">Forms menu</button>
+              <button id="ngs-reset" class="button button-secondary top-action-button" type="button">Start new scan</button>
+            </div>
+          </div>
+
+          <div class="ngs-upload-section">
+            <div class="ngs-upload-box">
+              <h3>Select the No Response Dashboard image</h3>
+              <p>PNG, JPG, and phone screenshots are supported. Keep the entire dashboard visible and avoid cropping the edges.</p>
+              <div>
+                <input id="ngs-image-input" class="ngs-file-input" type="file" accept="image/png,image/jpeg,image/webp,image/*">
+                <label id="ngs-file-label" class="ngs-file-label" for="ngs-image-input">Choose screenshot or photo</label>
+              </div>
+            </div>
+
+            <div id="ngs-image-wrap" class="ngs-image-wrap" hidden>
+              <img id="ngs-image-preview" class="ngs-image-preview" alt="Selected No Response Dashboard screenshot">
+              <div class="ngs-scan-actions">
+                <button id="ngs-scan" class="button button-primary" type="button">Read highlighted values</button>
+                <button id="ngs-change-image" class="button button-secondary" type="button">Choose another image</button>
+              </div>
+              <progress id="ngs-progress" class="ngs-progress" max="100" value="0" hidden></progress>
+              <p id="ngs-scan-status" class="ngs-scan-status" role="status" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <div class="ngs-results-section">
+            <div class="ngs-results-heading">
+              <div>
+                <h3>Detected results</h3>
+                <p>Review every line before copying. Each value can be corrected manually.</p>
+              </div>
+            </div>
+            <div class="ngs-result-labels" aria-hidden="true">
+              <span>Line</span>
+              <span>Station</span>
+              <span>Count</span>
+              <span></span>
+            </div>
+            <div id="ngs-result-list" class="ngs-result-list"></div>
+            <button id="ngs-add-row" class="button button-secondary ngs-add-row" type="button">Add result manually</button>
+          </div>
+        </section>
+
+        <aside class="panel preview-panel" aria-label="No Response NGS chat preview">
+          <div class="panel-heading">
+            <div>
+              <h2>Chat preview</h2>
+              <p>This is exactly what will be copied.</p>
+            </div>
+          </div>
+          <div class="preview-wrap">
+            <textarea id="ngs-report-preview" class="preview" readonly spellcheck="false" aria-live="polite" aria-label="No Response NGS report preview"></textarea>
+          </div>
+          <div class="actions">
+            <button id="ngs-copy-report" class="button button-primary" type="button">Copy NGS report</button>
+          </div>
+          <p id="ngs-copy-status" class="status" role="status" aria-live="polite"></p>
+          <p class="privacy-note">The screenshot is processed on this phone and is not uploaded by this tool. The first scan may take longer while the number reader loads.</p>
+        </aside>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -2064,6 +2354,39 @@
         { key: "line5", heading: "Line 5", rows: ["5-1", "5-2", "5-3", "5-4", "5-5", "5-6", "5-7", "5-8"] },
         { key: "halfCell", heading: "Half Cell", rows: ["3-H"] }
       ];
+      var ngsColumns = [
+        { value: "LSS", label: "LSS", position: 0.236 },
+        { value: "LAMI", label: "LAMI", position: 0.306 },
+        { value: "NG MARK", label: "NG MARK", position: 0.378 },
+        { value: "Mono5R5", label: "Mono5R5", position: 0.466 },
+        { value: "D-STK 1 ALIGN", label: "D-STK 1 ALIGN", position: 0.537 },
+        { value: "D-STK 2 ALIGN", label: "D-STK 2 ALIGN", position: 0.609 },
+        { value: "D-STK 3 ALIGN", label: "D-STK 3 ALIGN", position: 0.680 },
+        { value: "D-STK 1 STACK", label: "D-STK 1 STACK", position: 0.750 },
+        { value: "D-STK 2 STACK", label: "D-STK 2 STACK", position: 0.820 },
+        { value: "D-STK 3 STACK", label: "D-STK 3 STACK", position: 0.891 }
+      ];
+      var ngsRows = [
+        { value: "3-1", position: 0.157 },
+        { value: "3-2", position: 0.195 },
+        { value: "3-3", position: 0.234 },
+        { value: "3-4", position: 0.273 },
+        { value: "3-5", position: 0.313 },
+        { value: "4-1", position: 0.352 },
+        { value: "4-2", position: 0.391 },
+        { value: "4-3", position: 0.430 },
+        { value: "4-4", position: 0.469 },
+        { value: "4-5", position: 0.508 },
+        { value: "4-6", position: 0.547 },
+        { value: "5-1", position: 0.586 },
+        { value: "5-2", position: 0.625 },
+        { value: "5-3", position: 0.726 },
+        { value: "5-4", position: 0.765 },
+        { value: "5-5", position: 0.804 },
+        { value: "5-6", position: 0.843 },
+        { value: "5-7", position: 0.882 },
+        { value: "5-8", position: 0.921 }
+      ];
       var nextRowId = 1;
       var statusTimer = null;
       var draftSaveTimer = null;
@@ -2082,6 +2405,11 @@
       var lnsDraftSavingEnabled = false;
       var lnsStatusTimer = null;
       var lnsPreviewMode = "full";
+      var ngsStatusTimer = null;
+      var ngsOcrScriptPromise = null;
+      var ngsSourceImage = null;
+      var ngsObjectUrl = "";
+      var ngsScanInProgress = false;
       var themeSelect = document.getElementById("theme-select");
       var themeColorMeta = document.querySelector('meta[name="theme-color"]');
       var form = document.getElementById("review-form");
@@ -2102,8 +2430,10 @@
       var versionHistoryView = document.getElementById("version-history-view");
       var pkgFormView = document.getElementById("pkg-form-view");
       var lnsFormView = document.getElementById("lns-form-view");
+      var ngsFormView = document.getElementById("ngs-form-view");
       var openPkgButton = document.getElementById("open-pkg-form");
       var openLnsButton = document.getElementById("open-lns-form");
+      var openNgsButton = document.getElementById("open-ngs-form");
       var openVersionHistoryButton = document.getElementById("open-version-history");
       var versionHistoryBackButton = document.getElementById("version-history-back");
       var backToMenuButton = document.getElementById("back-to-menu");
@@ -2121,6 +2451,21 @@
       var lnsTogglePreviewButton = document.getElementById("lns-toggle-preview");
       var lnsStatus = document.getElementById("lns-copy-status");
       var lnsDraftNote = document.getElementById("lns-draft-note");
+      var ngsBackToMenuButton = document.getElementById("ngs-back-to-menu");
+      var ngsResetButton = document.getElementById("ngs-reset");
+      var ngsImageInput = document.getElementById("ngs-image-input");
+      var ngsFileLabel = document.getElementById("ngs-file-label");
+      var ngsImageWrap = document.getElementById("ngs-image-wrap");
+      var ngsImagePreview = document.getElementById("ngs-image-preview");
+      var ngsScanButton = document.getElementById("ngs-scan");
+      var ngsChangeImageButton = document.getElementById("ngs-change-image");
+      var ngsProgress = document.getElementById("ngs-progress");
+      var ngsScanStatus = document.getElementById("ngs-scan-status");
+      var ngsResultList = document.getElementById("ngs-result-list");
+      var ngsAddRowButton = document.getElementById("ngs-add-row");
+      var ngsReportPreview = document.getElementById("ngs-report-preview");
+      var ngsCopyButton = document.getElementById("ngs-copy-report");
+      var ngsCopyStatus = document.getElementById("ngs-copy-status");
       var themeColors = {
         matcha: "#30492d",
         sakura: "#7c344f",
@@ -2139,14 +2484,18 @@
       function showRequestedView() {
         var showPkgForm = window.location.hash === "#pkg-update";
         var showLnsForm = window.location.hash === "#lns-iq-check";
+        var showNgsForm = window.location.hash === "#no-response-ngs";
         var showVersionHistory = window.location.hash === "#version-history";
-        formsMenuView.hidden = showPkgForm || showLnsForm || showVersionHistory;
+        formsMenuView.hidden = showPkgForm || showLnsForm || showNgsForm || showVersionHistory;
         versionHistoryView.hidden = !showVersionHistory;
         pkgFormView.hidden = !showPkgForm;
         lnsFormView.hidden = !showLnsForm;
+        ngsFormView.hidden = !showNgsForm;
         document.title = showPkgForm
           ? "PKG DL Update"
-          : (showLnsForm ? "LNS IQ Check" : (showVersionHistory ? "Version History" : "Copy/Paste Forms"));
+          : (showLnsForm
+            ? "LNS IQ Check"
+            : (showNgsForm ? "No Response NGS" : (showVersionHistory ? "Version History" : "Copy/Paste Forms")));
         window.scrollTo(0, 0);
       }
 
@@ -2164,6 +2513,14 @@
           return;
         }
         window.location.hash = "lns-iq-check";
+      }
+
+      function openNgsForm() {
+        if (window.location.hash === "#no-response-ngs") {
+          showRequestedView();
+          return;
+        }
+        window.location.hash = "no-response-ngs";
       }
 
       function openVersionHistory() {
@@ -2907,6 +3264,526 @@
         }
       }
 
+      function showNgsScanStatus(message, isError) {
+        ngsScanStatus.textContent = message || "";
+        ngsScanStatus.className = isError ? "ngs-scan-status error" : "ngs-scan-status";
+      }
+
+      function showNgsCopyStatus(message, isError) {
+        if (ngsStatusTimer) window.clearTimeout(ngsStatusTimer);
+        ngsCopyStatus.textContent = message;
+        ngsCopyStatus.className = isError ? "status error" : "status";
+        ngsStatusTimer = window.setTimeout(function () {
+          ngsCopyStatus.textContent = "";
+          ngsCopyStatus.className = "status";
+        }, 3200);
+      }
+
+      function setNgsBusy(isBusy) {
+        ngsScanInProgress = isBusy;
+        ngsImageInput.disabled = isBusy;
+        ngsScanButton.disabled = isBusy;
+        ngsChangeImageButton.disabled = isBusy;
+        ngsResetButton.disabled = isBusy;
+        ngsAddRowButton.disabled = isBusy;
+        ngsFileLabel.setAttribute("aria-disabled", isBusy ? "true" : "false");
+        ngsProgress.hidden = !isBusy;
+        if (!isBusy) ngsProgress.value = 0;
+      }
+
+      function ngsOption(select, value, label) {
+        var option = document.createElement("option");
+        option.value = value;
+        option.textContent = label;
+        select.appendChild(option);
+      }
+
+      function renderNgsEmptyResults() {
+        if (ngsResultList.querySelector(".ngs-result-row")) return;
+        ngsResultList.innerHTML = "";
+        ngsResultList.appendChild(makeElement("p", "ngs-empty-results", "Upload a dashboard screenshot and tap Read highlighted values, or add a result manually."));
+      }
+
+      function ngsRowOrder(lineName) {
+        for (var index = 0; index < ngsRows.length; index += 1) {
+          if (ngsRows[index].value === lineName) return index;
+        }
+        return ngsRows.length;
+      }
+
+      function ngsColumnOrder(stationName) {
+        for (var index = 0; index < ngsColumns.length; index += 1) {
+          if (ngsColumns[index].value === stationName) return index;
+        }
+        return ngsColumns.length;
+      }
+
+      function addNgsResultRow(result) {
+        var emptyMessage = ngsResultList.querySelector(".ngs-empty-results");
+        if (emptyMessage) emptyMessage.remove();
+
+        var safeResult = result || {};
+        var row = makeElement("div", "ngs-result-row");
+        var lineSelect = document.createElement("select");
+        var stationSelect = document.createElement("select");
+        var countInput = document.createElement("input");
+        var removeButton = makeElement("button", "icon-button", "×");
+
+        ngsRows.forEach(function (line) {
+          ngsOption(lineSelect, line.value, line.value);
+        });
+        ngsColumns.forEach(function (station) {
+          ngsOption(stationSelect, station.value, station.label);
+        });
+
+        lineSelect.value = safeResult.line || ngsRows[0].value;
+        stationSelect.value = safeResult.station || ngsColumns[0].value;
+        lineSelect.setAttribute("aria-label", "NGS line");
+        stationSelect.setAttribute("aria-label", "NGS station");
+
+        countInput.type = "number";
+        countInput.min = "1";
+        countInput.step = "1";
+        countInput.inputMode = "numeric";
+        countInput.pattern = "[0-9]*";
+        countInput.value = safeResult.count || "";
+        countInput.placeholder = "#";
+        countInput.setAttribute("aria-label", "No Response count");
+
+        removeButton.type = "button";
+        removeButton.setAttribute("aria-label", "Remove " + lineSelect.value + " result");
+
+        function handleResultChange() {
+          removeButton.setAttribute("aria-label", "Remove " + lineSelect.value + " result");
+          updateNgsPreview();
+        }
+
+        lineSelect.addEventListener("change", handleResultChange);
+        stationSelect.addEventListener("change", handleResultChange);
+        countInput.addEventListener("input", handleResultChange);
+        countInput.addEventListener("change", handleResultChange);
+        removeButton.addEventListener("click", function () {
+          row.remove();
+          renderNgsEmptyResults();
+          updateNgsPreview();
+        });
+
+        row.appendChild(lineSelect);
+        row.appendChild(stationSelect);
+        row.appendChild(countInput);
+        row.appendChild(removeButton);
+        ngsResultList.appendChild(row);
+        updateNgsPreview();
+        return row;
+      }
+
+      function setNgsResults(results) {
+        ngsResultList.innerHTML = "";
+        (results || []).forEach(function (result) {
+          addNgsResultRow(result);
+        });
+        renderNgsEmptyResults();
+        updateNgsPreview();
+      }
+
+      function collectNgsResults() {
+        var results = [];
+        Array.prototype.forEach.call(ngsResultList.querySelectorAll(".ngs-result-row"), function (row) {
+          var selects = row.querySelectorAll("select");
+          var countInput = row.querySelector('input[type="number"]');
+          var count = countInput ? parseInt(countInput.value, 10) : NaN;
+          if (selects.length < 2 || !isFinite(count) || count < 1) return;
+          results.push({
+            line: selects[0].value,
+            station: selects[1].value,
+            count: count
+          });
+        });
+        results.sort(function (left, right) {
+          var rowDifference = ngsRowOrder(left.line) - ngsRowOrder(right.line);
+          return rowDifference || (ngsColumnOrder(left.station) - ngsColumnOrder(right.station));
+        });
+        return results;
+      }
+
+      function updateNgsPreview() {
+        var results = collectNgsResults();
+        var lines = ["No Response NGS", ""];
+        var total = 0;
+
+        if (!results.length) {
+          lines.push("No highlighted values.");
+        } else {
+          results.forEach(function (result) {
+            total += result.count;
+            lines.push(result.line + ": " + result.station + " - " + result.count);
+          });
+        }
+
+        lines.push("");
+        lines.push("Total: " + total);
+        ngsReportPreview.value = lines.join("\n");
+      }
+
+      function handleNgsImageChange() {
+        if (ngsScanInProgress) return;
+        var file = ngsImageInput.files && ngsImageInput.files[0];
+        if (!file) return;
+        if (!/^image\//i.test(file.type || "")) {
+          showNgsScanStatus("Choose a PNG, JPG, or other image file.", true);
+          return;
+        }
+        if (file.size > 20 * 1024 * 1024) {
+          showNgsScanStatus("This image is larger than 20 MB. Use a smaller screenshot and try again.", true);
+          return;
+        }
+
+        if (ngsObjectUrl) window.URL.revokeObjectURL(ngsObjectUrl);
+        ngsObjectUrl = window.URL.createObjectURL(file);
+        var selectedImage = new Image();
+        selectedImage.onload = function () {
+          ngsSourceImage = selectedImage;
+          ngsImagePreview.src = ngsObjectUrl;
+          ngsImageWrap.hidden = false;
+          setNgsResults([]);
+          showNgsScanStatus("Image ready. Tap Read highlighted values.", false);
+        };
+        selectedImage.onerror = function () {
+          ngsSourceImage = null;
+          ngsImageWrap.hidden = true;
+          showNgsScanStatus("This image could not be opened. Choose another screenshot.", true);
+        };
+        selectedImage.src = ngsObjectUrl;
+      }
+
+      function resetNgsReport(askFirst) {
+        var hasImage = Boolean(ngsSourceImage);
+        var hasResults = Boolean(ngsResultList.querySelector(".ngs-result-row"));
+        if (askFirst && (hasImage || hasResults) && !window.confirm("Clear this NGS scan and start over?")) return;
+        if (ngsObjectUrl) window.URL.revokeObjectURL(ngsObjectUrl);
+        ngsObjectUrl = "";
+        ngsSourceImage = null;
+        ngsImageInput.value = "";
+        ngsImagePreview.removeAttribute("src");
+        ngsImageWrap.hidden = true;
+        showNgsScanStatus("", false);
+        ngsCopyStatus.textContent = "";
+        ngsCopyStatus.className = "status";
+        setNgsResults([]);
+        setNgsBusy(false);
+        window.scrollTo(0, 0);
+      }
+
+      function isNgsHighlightPixel(data, offset) {
+        var red = data[offset];
+        var green = data[offset + 1];
+        var blue = data[offset + 2];
+        return red > 165 && green > 100 && green < 230 && blue < 140 &&
+          red - blue > 75 && green - blue > 45 && red >= green * 0.95;
+      }
+
+      function createNgsAnalysisCanvas(image) {
+        var naturalWidth = image.naturalWidth || image.width;
+        var naturalHeight = image.naturalHeight || image.height;
+        var largestSide = Math.max(naturalWidth, naturalHeight);
+        var scale = largestSide > 1200 ? 1200 / largestSide : 1;
+        var canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(naturalHeight * scale));
+        var context = canvas.getContext("2d", { willReadFrequently: true });
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        return canvas;
+      }
+
+      function findNgsHighlightRegions(canvas) {
+        var context = canvas.getContext("2d", { willReadFrequently: true });
+        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        var pixels = imageData.data;
+        var width = canvas.width;
+        var height = canvas.height;
+        var totalPixels = width * height;
+        var highlightMask = new Uint8Array(totalPixels);
+        var visited = new Uint8Array(totalPixels);
+        var queue = new Int32Array(totalPixels);
+        var regions = [];
+        var pixelIndex;
+
+        for (pixelIndex = 0; pixelIndex < totalPixels; pixelIndex += 1) {
+          if (isNgsHighlightPixel(pixels, pixelIndex * 4)) highlightMask[pixelIndex] = 1;
+        }
+
+        for (pixelIndex = 0; pixelIndex < totalPixels; pixelIndex += 1) {
+          if (!highlightMask[pixelIndex] || visited[pixelIndex]) continue;
+          var queueStart = 0;
+          var queueEnd = 0;
+          var area = 0;
+          var minX = width;
+          var minY = height;
+          var maxX = 0;
+          var maxY = 0;
+          queue[queueEnd] = pixelIndex;
+          queueEnd += 1;
+          visited[pixelIndex] = 1;
+
+          while (queueStart < queueEnd) {
+            var current = queue[queueStart];
+            queueStart += 1;
+            var currentX = current % width;
+            var currentY = Math.floor(current / width);
+            area += 1;
+            if (currentX < minX) minX = currentX;
+            if (currentX > maxX) maxX = currentX;
+            if (currentY < minY) minY = currentY;
+            if (currentY > maxY) maxY = currentY;
+
+            var neighbors = [];
+            if (currentX > 0) neighbors.push(current - 1);
+            if (currentX < width - 1) neighbors.push(current + 1);
+            if (currentY > 0) neighbors.push(current - width);
+            if (currentY < height - 1) neighbors.push(current + width);
+            neighbors.forEach(function (neighbor) {
+              if (!visited[neighbor] && highlightMask[neighbor]) {
+                visited[neighbor] = 1;
+                queue[queueEnd] = neighbor;
+                queueEnd += 1;
+              }
+            });
+          }
+
+          var regionWidth = maxX - minX + 1;
+          var regionHeight = maxY - minY + 1;
+          var fillRatio = area / (regionWidth * regionHeight);
+          var centerX = (minX + maxX) / 2;
+          var centerY = (minY + maxY) / 2;
+          var aspectRatio = regionWidth / regionHeight;
+          if (
+            regionWidth > width * 0.035 && regionWidth < width * 0.12 &&
+            regionHeight > height * 0.015 && regionHeight < height * 0.07 &&
+            aspectRatio > 1.15 && aspectRatio < 3.6 &&
+            fillRatio > 0.42 && centerX > width * 0.15 && centerX < width * 0.95 &&
+            centerY > height * 0.10 && centerY < height * 0.96
+          ) {
+            regions.push({
+              minX: minX,
+              minY: minY,
+              maxX: maxX,
+              maxY: maxY,
+              width: regionWidth,
+              height: regionHeight,
+              area: area,
+              centerX: centerX,
+              centerY: centerY
+            });
+          }
+        }
+        return regions;
+      }
+
+      function nearestNgsItem(items, normalizedPosition, tolerance) {
+        var match = null;
+        var closestDistance = Infinity;
+        items.forEach(function (item) {
+          var distance = Math.abs(item.position - normalizedPosition);
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            match = item;
+          }
+        });
+        return closestDistance <= tolerance ? match : null;
+      }
+
+      function mapNgsRegions(canvas, regions) {
+        var mappedByCell = {};
+        regions.forEach(function (region) {
+          var row = nearestNgsItem(ngsRows, region.centerY / canvas.height, 0.027);
+          var column = nearestNgsItem(ngsColumns, region.centerX / canvas.width, 0.045);
+          if (!row || !column) return;
+          var key = row.value + "|" + column.value;
+          if (!mappedByCell[key] || mappedByCell[key].area < region.area) {
+            mappedByCell[key] = {
+              line: row.value,
+              station: column.value,
+              count: "",
+              region: region,
+              area: region.area
+            };
+          }
+        });
+        return Object.keys(mappedByCell).map(function (key) {
+          return mappedByCell[key];
+        }).sort(function (left, right) {
+          var rowDifference = ngsRowOrder(left.line) - ngsRowOrder(right.line);
+          return rowDifference || (ngsColumnOrder(left.station) - ngsColumnOrder(right.station));
+        });
+      }
+
+      function createNgsDigitCanvas(sourceCanvas, region) {
+        var insetX = Math.max(2, Math.round(region.width * 0.16));
+        var insetY = Math.max(2, Math.round(region.height * 0.12));
+        var sourceX = region.minX + insetX;
+        var sourceY = region.minY + insetY;
+        var sourceWidth = Math.max(1, region.width - insetX * 2);
+        var sourceHeight = Math.max(1, region.height - insetY * 2);
+        var canvas = document.createElement("canvas");
+        canvas.width = 240;
+        canvas.height = 140;
+        var context = canvas.getContext("2d", { willReadFrequently: true });
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(sourceCanvas, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, canvas.width, canvas.height);
+        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        var data = imageData.data;
+        for (var offset = 0; offset < data.length; offset += 4) {
+          var luminance = data[offset] * 0.2126 + data[offset + 1] * 0.7152 + data[offset + 2] * 0.0722;
+          var color = luminance < 120 ? 0 : 255;
+          data[offset] = color;
+          data[offset + 1] = color;
+          data[offset + 2] = color;
+          data[offset + 3] = 255;
+        }
+        context.putImageData(imageData, 0, 0);
+        return canvas;
+      }
+
+      function loadNgsOcrLibrary() {
+        if (window.Tesseract && window.Tesseract.createWorker) return Promise.resolve(window.Tesseract);
+        if (ngsOcrScriptPromise) return ngsOcrScriptPromise;
+        ngsOcrScriptPromise = new Promise(function (resolve, reject) {
+          var script = document.createElement("script");
+          script.src = "https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js";
+          script.async = true;
+          script.crossOrigin = "anonymous";
+          script.onload = function () {
+            if (window.Tesseract && window.Tesseract.createWorker) resolve(window.Tesseract);
+            else reject(new Error("The number reader did not initialize."));
+          };
+          script.onerror = function () {
+            ngsOcrScriptPromise = null;
+            reject(new Error("The number reader could not be downloaded."));
+          };
+          document.head.appendChild(script);
+        });
+        return ngsOcrScriptPromise;
+      }
+
+      function recognizeNgsCounts(worker, sourceCanvas, mappedResults) {
+        var recognized = [];
+        var sequence = Promise.resolve();
+        mappedResults.forEach(function (result, index) {
+          sequence = sequence.then(function () {
+            ngsProgress.value = Math.round(15 + (index / mappedResults.length) * 80);
+            showNgsScanStatus("Reading highlighted value " + (index + 1) + " of " + mappedResults.length + "…", false);
+            return worker.recognize(createNgsDigitCanvas(sourceCanvas, result.region)).then(function (recognition) {
+              var rawText = recognition && recognition.data ? recognition.data.text : "";
+              var numberMatch = String(rawText || "").match(/\d+/);
+              recognized.push({
+                line: result.line,
+                station: result.station,
+                count: numberMatch ? String(parseInt(numberMatch[0], 10)) : ""
+              });
+            });
+          });
+        });
+        return sequence.then(function () {
+          return recognized;
+        });
+      }
+
+      function analyzeNgsImage() {
+        if (!ngsSourceImage || ngsScanInProgress) {
+          if (!ngsSourceImage) showNgsScanStatus("Choose a dashboard screenshot first.", true);
+          return;
+        }
+
+        setNgsBusy(true);
+        ngsProgress.value = 4;
+        showNgsScanStatus("Finding highlighted dashboard cells…", false);
+        var analysisCanvas;
+        var mappedResults;
+        var worker = null;
+
+        try {
+          analysisCanvas = createNgsAnalysisCanvas(ngsSourceImage);
+          mappedResults = mapNgsRegions(analysisCanvas, findNgsHighlightRegions(analysisCanvas));
+        } catch (error) {
+          setNgsBusy(false);
+          showNgsScanStatus("The screenshot could not be analyzed. Try a clearer full-dashboard image.", true);
+          return;
+        }
+
+        if (!mappedResults.length) {
+          setNgsResults([]);
+          setNgsBusy(false);
+          showNgsScanStatus("No amber highlighted cells were found. Use a clear, uncropped dashboard screenshot.", true);
+          return;
+        }
+
+        ngsProgress.value = 12;
+        showNgsScanStatus("Found " + mappedResults.length + " highlighted cell" + (mappedResults.length === 1 ? "" : "s") + ". Loading the number reader…", false);
+        loadNgsOcrLibrary().then(function (tesseract) {
+          return tesseract.createWorker("eng", 1).then(function (createdWorker) {
+            worker = createdWorker;
+            return worker.setParameters({
+              tessedit_char_whitelist: "0123456789",
+              tessedit_pageseg_mode: "6"
+            });
+          }).then(function () {
+            return recognizeNgsCounts(worker, analysisCanvas, mappedResults);
+          });
+        }).then(function (recognizedResults) {
+          ngsProgress.value = 100;
+          setNgsResults(recognizedResults);
+          var missingCount = recognizedResults.filter(function (result) {
+            return !result.count;
+          }).length;
+          if (missingCount) {
+            showNgsScanStatus("Scan complete. " + missingCount + " count" + (missingCount === 1 ? " needs" : "s need") + " manual entry; review every row before copying.", true);
+          } else {
+            showNgsScanStatus("Scan complete. Review every detected value before copying.", false);
+          }
+        }).catch(function () {
+          setNgsResults(mappedResults.map(function (result) {
+            return { line: result.line, station: result.station, count: "" };
+          }));
+          showNgsScanStatus("The highlighted cells were found, but their numbers could not be read. Enter the counts manually and review the preview.", true);
+        }).then(function () {
+          if (worker) return worker.terminate().catch(function () {});
+          return null;
+        }).then(function () {
+          setNgsBusy(false);
+        });
+      }
+
+      function copyNgsReport() {
+        updateNgsPreview();
+        if (legacyCopyArea(ngsReportPreview)) {
+          ngsCopyButton.textContent = "Copied";
+          showNgsCopyStatus("NGS report copied. Paste it into your work chat.", false);
+          window.setTimeout(function () {
+            ngsCopyButton.textContent = "Copy NGS report";
+          }, 1800);
+          return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(ngsReportPreview.value).then(function () {
+            ngsCopyButton.textContent = "Copied";
+            showNgsCopyStatus("NGS report copied. Paste it into your work chat.", false);
+            window.setTimeout(function () {
+              ngsCopyButton.textContent = "Copy NGS report";
+            }, 1800);
+          }).catch(function () {
+            ngsReportPreview.focus();
+            ngsReportPreview.select();
+            showNgsCopyStatus("Automatic copy was blocked. The report is selected; use Copy from the phone menu.", true);
+          });
+        } else {
+          ngsReportPreview.focus();
+          ngsReportPreview.select();
+          showNgsCopyStatus("Automatic copy was blocked. The report is selected; use Copy from the phone menu.", true);
+        }
+      }
+
       function applyTheme(themeName) {
         var safeTheme = themeColors[themeName] ? themeName : "matcha";
         document.documentElement.setAttribute("data-theme", safeTheme);
@@ -3359,10 +4236,28 @@
       resetButton.addEventListener("click", resetForm);
       openPkgButton.addEventListener("click", openPkgForm);
       openLnsButton.addEventListener("click", openLnsForm);
+      openNgsButton.addEventListener("click", openNgsForm);
       openVersionHistoryButton.addEventListener("click", openVersionHistory);
       versionHistoryBackButton.addEventListener("click", openFormsMenu);
       backToMenuButton.addEventListener("click", openFormsMenu);
       lnsBackToMenuButton.addEventListener("click", openFormsMenu);
+      ngsBackToMenuButton.addEventListener("click", openFormsMenu);
+      ngsResetButton.addEventListener("click", function () {
+        resetNgsReport(true);
+      });
+      ngsImageInput.addEventListener("change", handleNgsImageChange);
+      ngsScanButton.addEventListener("click", analyzeNgsImage);
+      ngsChangeImageButton.addEventListener("click", function () {
+        if (ngsScanInProgress) return;
+        ngsImageInput.value = "";
+        ngsImageInput.click();
+      });
+      ngsAddRowButton.addEventListener("click", function () {
+        addNgsResultRow({ line: "3-1", station: "LSS", count: "" });
+        var rows = ngsResultList.querySelectorAll(".ngs-result-row");
+        if (rows.length) rows[rows.length - 1].querySelector("select").focus();
+      });
+      ngsCopyButton.addEventListener("click", copyNgsReport);
       lnsResetButton.addEventListener("click", startNewLnsCheck);
       lnsMarkAllOkButton.addEventListener("click", markAllLnsOk);
       lnsCopyButton.addEventListener("click", copyLnsReport);
@@ -3374,6 +4269,7 @@
       window.addEventListener("hashchange", showRequestedView);
 
       renderLnsChecks();
+      setNgsResults([]);
       showRequestedView();
 
       var savedDraft = readSavedDraft();
