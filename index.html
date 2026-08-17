@@ -596,10 +596,81 @@
     }
 
     .iq-preview {
-      min-height: 540px;
+      display: grid;
+      gap: 16px;
+      min-height: 260px;
+      padding: 14px;
+      border: 1px solid var(--preview-line);
+      border-radius: 9px;
+      background: var(--preview-bg);
+      color: var(--preview-ink);
       font-size: 12px;
-      white-space: pre;
-      overflow-x: auto;
+      font-variant-numeric: tabular-nums;
+      overflow: hidden;
+    }
+
+    .iq-preview-title {
+      display: grid;
+      gap: 2px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--preview-line);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-weight: 800;
+    }
+
+    .iq-preview-group {
+      display: grid;
+      gap: 7px;
+    }
+
+    .iq-preview-group h3 {
+      margin: 0;
+      color: var(--preview-ink);
+      font-size: 0.84rem;
+    }
+
+    .iq-preview-grid {
+      display: grid;
+      grid-template-columns: 48px repeat(4, minmax(0, 1fr));
+      gap: 5px;
+      align-items: center;
+    }
+
+    .iq-preview-cell {
+      display: flex;
+      min-width: 0;
+      min-height: 30px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      background: var(--white-button);
+      text-align: center;
+    }
+
+    .iq-preview-column,
+    .iq-preview-row {
+      min-height: 22px;
+      background: transparent;
+      color: var(--column-label);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.65rem;
+      font-weight: 850;
+    }
+
+    .iq-preview-row {
+      justify-content: flex-start;
+      color: var(--preview-ink);
+      font-size: 0.72rem;
+    }
+
+    .iq-copy-source {
+      position: fixed;
+      top: 0;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
     }
 
     @media (max-width: 360px) {
@@ -616,6 +687,19 @@
 
       .iq-column-label {
         font-size: 0.62rem;
+      }
+
+      .iq-preview {
+        padding: 10px 8px;
+      }
+
+      .iq-preview-grid {
+        grid-template-columns: 40px repeat(4, minmax(0, 1fr));
+        gap: 3px;
+      }
+
+      .iq-preview-column {
+        font-size: 0.58rem;
       }
     }
 
@@ -1504,7 +1588,8 @@
             </div>
           </div>
           <div class="preview-wrap">
-            <textarea id="lns-preview" class="preview iq-preview" readonly spellcheck="false" aria-live="polite" aria-label="Completed LNS IQ Check report"></textarea>
+            <div id="lns-visual-preview" class="iq-preview" role="region" aria-live="polite" aria-label="Completed LNS IQ Check report preview"></div>
+            <textarea id="lns-preview" class="iq-copy-source" readonly spellcheck="false" aria-hidden="true" tabindex="-1"></textarea>
           </div>
           <div class="actions">
             <button id="lns-copy-report" class="button button-primary" type="button">Copy IQ check</button>
@@ -1616,6 +1701,7 @@
       var lnsSectionsRoot = document.getElementById("lns-check-sections");
       var lnsMarkAllOkButton = document.getElementById("lns-mark-all-ok");
       var lnsResetButton = document.getElementById("lns-reset-form");
+      var lnsVisualPreview = document.getElementById("lns-visual-preview");
       var lnsPreview = document.getElementById("lns-preview");
       var lnsCopyButton = document.getElementById("lns-copy-report");
       var lnsStatus = document.getElementById("lns-copy-status");
@@ -2008,6 +2094,41 @@
         return textValue;
       }
 
+      function renderLnsVisualPreview(includedGroups) {
+        lnsVisualPreview.innerHTML = "";
+
+        var title = makeElement("div", "iq-preview-title");
+        title.appendChild(makeElement("span", "", "MI2 Image Quality Check"));
+        title.appendChild(makeElement("span", "", lnsDateText(lnsDate.value) + " - " + lnsTime.value));
+        lnsVisualPreview.appendChild(title);
+
+        includedGroups.forEach(function (group) {
+          var previewGroup = makeElement("section", "iq-preview-group");
+          previewGroup.appendChild(makeElement("h3", "", group.heading));
+          var previewGrid = makeElement("div", "iq-preview-grid");
+          previewGrid.appendChild(makeElement("span", "iq-preview-cell iq-preview-column", ""));
+          lnsColumns.forEach(function (columnName) {
+            previewGrid.appendChild(makeElement("span", "iq-preview-cell iq-preview-column", columnName));
+          });
+          group.rows.forEach(function (rowName) {
+            previewGrid.appendChild(makeElement("span", "iq-preview-cell iq-preview-row", rowName));
+            lnsColumns.forEach(function (columnName) {
+              var button = findLnsCheck(rowName, columnName);
+              var state = button ? button.getAttribute("data-state") : "unset";
+              var icon = makeElement("span", "iq-preview-cell", lnsStateIcon(state, true));
+              icon.setAttribute("aria-label", rowName + " " + columnName + " " + (state === "ok" ? "OK" : (state === "ng" ? "Not OK" : "blank")));
+              previewGrid.appendChild(icon);
+            });
+          });
+          previewGroup.appendChild(previewGrid);
+          lnsVisualPreview.appendChild(previewGroup);
+        });
+
+        if (!includedGroups.length) {
+          lnsVisualPreview.appendChild(makeElement("p", "", "No IQ check sections included."));
+        }
+      }
+
       function updateLnsPreview(options) {
         var lines = [
           "MI2 Image Quality Check",
@@ -2038,6 +2159,7 @@
         if (!includedGroups.length) lines.push("No IQ check sections included.");
 
         lnsPreview.value = lines.join("\n");
+        renderLnsVisualPreview(includedGroups);
         if (!options || !options.skipDraftSave) queueLnsDraftSave();
       }
 
