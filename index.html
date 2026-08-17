@@ -1685,7 +1685,7 @@
             <span class="form-tile-arrow" aria-hidden="true">›</span>
           </button>
         </div>
-        <p class="last-updated">Last updated: <time datetime="2026-08-17">August 17, 2026</time></p>
+        <p class="last-updated">Version 1.1 · Last updated: <time datetime="2026-08-17">August 17, 2026</time></p>
       </section>
     </section>
 
@@ -1838,9 +1838,11 @@
           <div class="preview-wrap">
             <div id="lns-visual-preview" class="iq-preview" role="region" aria-live="polite" aria-label="Completed LNS IQ Check report preview"></div>
             <textarea id="lns-preview" class="iq-copy-source" readonly spellcheck="false" aria-hidden="true" tabindex="-1"></textarea>
+            <textarea id="lns-not-ok-preview" class="iq-copy-source" readonly spellcheck="false" aria-hidden="true" tabindex="-1"></textarea>
           </div>
           <div class="actions">
             <button id="lns-copy-report" class="button button-primary" type="button">Copy IQ check</button>
+            <button id="lns-copy-not-ok" class="button button-secondary" type="button">Copy only ❌ results</button>
           </div>
           <p id="lns-copy-status" class="status" role="status" aria-live="polite"></p>
           <p id="lns-draft-note" class="privacy-note" role="status" aria-live="polite">Settings are saved only in this browser and automatically deleted 12 hours after the last change unless manually cleared.</p>
@@ -1914,6 +1916,7 @@
       var DRAFT_KEY = "pkg-dl-update-draft-v1";
       var DRAFT_VERSION = 1;
       var DRAFT_TTL_MS = 60 * 60 * 1000;
+      var THEME_KEY = "copy-paste-preferred-theme-v1";
       var LNS_DRAFT_KEY = "lns-iq-check-draft-v1";
       var LNS_DRAFT_VERSION = 1;
       var LNS_DRAFT_TTL_MS = 12 * 60 * 60 * 1000;
@@ -1951,7 +1954,9 @@
       var lnsResetButton = document.getElementById("lns-reset-form");
       var lnsVisualPreview = document.getElementById("lns-visual-preview");
       var lnsPreview = document.getElementById("lns-preview");
+      var lnsNotOkPreview = document.getElementById("lns-not-ok-preview");
       var lnsCopyButton = document.getElementById("lns-copy-report");
+      var lnsCopyNotOkButton = document.getElementById("lns-copy-not-ok");
       var lnsStatus = document.getElementById("lns-copy-status");
       var lnsDraftNote = document.getElementById("lns-draft-note");
       var themeColors = {
@@ -1967,6 +1972,7 @@
         astronaut: "#071126"
       };
       var draftStorage = getDraftStorage();
+      var themeStorage = getThemeStorage();
 
       function showRequestedView() {
         var showPkgForm = window.location.hash === "#pkg-update";
@@ -2028,6 +2034,37 @@
           }
         }
         return null;
+      }
+
+      function getThemeStorage() {
+        try {
+          if (!window.localStorage) return null;
+          var testKey = THEME_KEY + "-test";
+          window.localStorage.setItem(testKey, "1");
+          window.localStorage.removeItem(testKey);
+          return window.localStorage;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function readSavedTheme() {
+        if (!themeStorage) return "";
+        try {
+          var savedTheme = themeStorage.getItem(THEME_KEY) || "";
+          return themeColors[savedTheme] ? savedTheme : "";
+        } catch (error) {
+          return "";
+        }
+      }
+
+      function savePreferredTheme(themeName) {
+        if (!themeStorage || !themeColors[themeName]) return;
+        try {
+          themeStorage.setItem(THEME_KEY, themeName);
+        } catch (error) {
+          // The selected theme still applies for the current session.
+        }
       }
 
       function setDraftNote(message) {
@@ -2187,7 +2224,7 @@
         });
         updateMachineOptions();
         fillTimeMenus();
-        applyTheme(draft.theme);
+        applyTheme(readSavedTheme() || draft.theme);
         renderSections();
 
         chooseSelectValue(machine, draft.machine);
@@ -2380,6 +2417,42 @@
         }
       }
 
+      function buildLnsNotOkReport(includedGroups) {
+        var lines = [
+          "MI2 Image Quality Check - Not OK Only",
+          lnsDateText(lnsDate.value) + " - " + lnsTime.value,
+          "----------------------------------------",
+          ""
+        ];
+        var notOkCount = 0;
+        var hasOutputGroup = false;
+
+        includedGroups.forEach(function (group) {
+          var groupLines = [];
+          group.rows.forEach(function (rowName) {
+            var failedColumns = lnsColumns.filter(function (columnName) {
+              var button = findLnsCheck(rowName, columnName);
+              return button && button.getAttribute("data-state") === "ng";
+            });
+            if (failedColumns.length) {
+              notOkCount += failedColumns.length;
+              groupLines.push("- " + rowName + ": " + failedColumns.map(function (columnName) {
+                return columnName + " ❌";
+              }).join(", "));
+            }
+          });
+          if (groupLines.length) {
+            if (hasOutputGroup) lines.push("");
+            lines.push(group.heading + ":");
+            Array.prototype.push.apply(lines, groupLines);
+            hasOutputGroup = true;
+          }
+        });
+
+        if (!notOkCount) lines.push("No ❌ Not OK results.");
+        return lines.join("\n");
+      }
+
       function updateLnsPreview(options) {
         var lines = [
           "MI2 Image Quality Check",
@@ -2410,6 +2483,7 @@
         if (!includedGroups.length) lines.push("No IQ check sections included.");
 
         lnsPreview.value = lines.join("\n");
+        lnsNotOkPreview.value = buildLnsNotOkReport(includedGroups);
         renderLnsVisualPreview(includedGroups);
         if (!options || !options.skipDraftSave) queueLnsDraftSave();
       }
@@ -2615,11 +2689,42 @@
         }
       }
 
+      function copyLnsNotOkReport() {
+        updateLnsPreview({ skipDraftSave: true });
+        if (legacyCopyArea(lnsNotOkPreview)) {
+          lnsCopyNotOkButton.textContent = "Copied ❌ results";
+          showLnsStatus("Copied only the Not OK results. Paste them into your work chat.", false);
+          window.setTimeout(function () {
+            lnsCopyNotOkButton.textContent = "Copy only ❌ results";
+          }, 1800);
+          return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(lnsNotOkPreview.value).then(function () {
+            lnsCopyNotOkButton.textContent = "Copied ❌ results";
+            showLnsStatus("Copied only the Not OK results. Paste them into your work chat.", false);
+            window.setTimeout(function () {
+              lnsCopyNotOkButton.textContent = "Copy only ❌ results";
+            }, 1800);
+          }).catch(function () {
+            lnsNotOkPreview.focus();
+            lnsNotOkPreview.select();
+            showLnsStatus("Automatic copy was blocked. The Not OK results are selected; use Copy from the phone menu.", true);
+          });
+        } else {
+          lnsNotOkPreview.focus();
+          lnsNotOkPreview.select();
+          showLnsStatus("Automatic copy was blocked. The Not OK results are selected; use Copy from the phone menu.", true);
+        }
+      }
+
       function applyTheme(themeName) {
         var safeTheme = themeColors[themeName] ? themeName : "matcha";
         document.documentElement.setAttribute("data-theme", safeTheme);
         themeSelect.value = safeTheme;
         if (themeColorMeta) themeColorMeta.setAttribute("content", themeColors[safeTheme]);
+        savePreferredTheme(safeTheme);
         queueDraftSave();
       }
 
@@ -3011,7 +3116,7 @@
         reviewDate.value = localDateValue(new Date());
         startTime.value = times.start;
         endTime.value = times.end;
-        if (resetTheme) applyTheme("matcha");
+        if (resetTheme) applyTheme(readSavedTheme() || "matcha");
         renderSections();
         updateReport();
       }
@@ -3065,6 +3170,7 @@
       lnsResetButton.addEventListener("click", startNewLnsCheck);
       lnsMarkAllOkButton.addEventListener("click", markAllLnsOk);
       lnsCopyButton.addEventListener("click", copyLnsReport);
+      lnsCopyNotOkButton.addEventListener("click", copyLnsNotOkReport);
       lnsDate.addEventListener("change", updateLnsPreview);
       lnsDate.addEventListener("input", updateLnsPreview);
       lnsTime.addEventListener("change", updateLnsPreview);
