@@ -433,6 +433,157 @@
       white-space: nowrap;
     }
 
+    .iq-workspace {
+      display: block;
+      width: 100%;
+    }
+
+    .iq-form-panel,
+    .iq-preview-panel {
+      overflow: visible;
+    }
+
+    .iq-details {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      padding: 18px 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .iq-instructions {
+      grid-column: 1 / -1;
+      margin: 0;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--matcha-100);
+      color: var(--secondary-ink);
+      font-size: 0.78rem;
+      font-weight: 720;
+      line-height: 1.45;
+    }
+
+    .iq-sections {
+      display: grid;
+      gap: 16px;
+      padding: 16px;
+      background: var(--page);
+    }
+
+    .iq-section {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--cream);
+    }
+
+    .iq-section h3 {
+      margin: 0;
+      padding: 12px 13px;
+      border-bottom: 1px solid var(--line);
+      background: var(--section-heading-1);
+      color: var(--ink);
+      font-size: 0.96rem;
+    }
+
+    .iq-section:nth-child(3n + 2) h3 {
+      background: var(--section-heading-2);
+    }
+
+    .iq-section:nth-child(3n) h3 {
+      background: var(--section-heading-3);
+    }
+
+    .iq-grid {
+      display: grid;
+      grid-template-columns: 48px repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      align-items: center;
+      padding: 10px;
+    }
+
+    .iq-column-label,
+    .iq-row-label {
+      color: var(--column-label);
+      font-size: 0.7rem;
+      font-weight: 850;
+      text-align: center;
+    }
+
+    .iq-row-label {
+      color: var(--ink);
+      font-size: 0.78rem;
+      text-align: left;
+    }
+
+    .iq-check {
+      min-width: 0;
+      min-height: 48px;
+      padding: 4px;
+      border: 1px solid var(--control-line);
+      border-radius: 9px;
+      background: var(--white-button);
+      color: var(--muted);
+      font-size: 1.12rem;
+      font-weight: 850;
+      line-height: 1;
+      touch-action: manipulation;
+    }
+
+    .iq-check[data-state="ok"] {
+      border-color: var(--success);
+      background: var(--matcha-100);
+      color: var(--success);
+    }
+
+    .iq-check[data-state="ng"] {
+      border-color: var(--danger);
+      background: var(--danger-hover);
+      color: var(--danger);
+    }
+
+    .iq-check:focus-visible {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 1px;
+    }
+
+    .iq-toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+      padding: 0 16px 16px;
+    }
+
+    .iq-toolbar .button-secondary {
+      min-height: 46px;
+    }
+
+    .iq-preview {
+      min-height: 540px;
+      font-size: 12px;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    @media (max-width: 360px) {
+      .iq-grid {
+        grid-template-columns: 42px repeat(4, minmax(0, 1fr));
+        gap: 4px;
+        padding: 8px 6px;
+      }
+
+      .iq-check {
+        min-height: 44px;
+        font-size: 1rem;
+      }
+
+      .iq-column-label {
+        font-size: 0.62rem;
+      }
+    }
+
     .panel {
       width: 100%;
       min-width: 0;
@@ -1127,7 +1278,7 @@
           <h1 id="forms-menu-title">Forms menu</h1>
           <p class="hero-copy">Choose the report you want to complete.</p>
         </div>
-        <span class="menu-count">1 form available</span>
+        <span class="menu-count">2 forms available</span>
       </header>
 
       <noscript>
@@ -1147,6 +1298,14 @@
             <span class="form-tile-copy">
               <strong>PKG Update</strong>
               <small>Open the PKG image review and Kakao copy tool.</small>
+            </span>
+            <span class="form-tile-arrow" aria-hidden="true">›</span>
+          </button>
+          <button id="open-lns-form" class="form-tile" type="button">
+            <span class="form-tile-icon" aria-hidden="true">IQ</span>
+            <span class="form-tile-copy">
+              <strong>LNS IQ Check</strong>
+              <small>Complete the MI2 image-quality OK and Not OK checklist.</small>
             </span>
             <span class="form-tile-arrow" aria-hidden="true">›</span>
           </button>
@@ -1256,6 +1415,71 @@
       </aside>
     </div>
     </section>
+
+    <section id="lns-form-view" class="app-view" hidden>
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Copy/Paste to Kakao Tool</p>
+          <h1>LNS IQ Check</h1>
+          <p class="hero-copy">Tap each inspection point, review the preview, then copy it into chat.</p>
+        </div>
+        <span class="menu-count">MI2 Image Quality</span>
+      </header>
+
+      <noscript>
+        <p class="noscript">JavaScript must be enabled for the tap checks and report copying.</p>
+      </noscript>
+
+      <div class="workspace iq-workspace">
+        <form id="lns-form" class="panel form-panel iq-form-panel" autocomplete="off">
+          <div class="panel-heading">
+            <div>
+              <h2>MI2 Image Quality Check</h2>
+              <p>Every checkpoint starts as ✅ OK. Tap only the items that need to change.</p>
+            </div>
+            <div class="panel-heading-actions">
+              <button id="lns-back-to-menu" class="button button-secondary top-action-button" type="button">Forms menu</button>
+              <button id="lns-reset-form" class="button button-secondary top-action-button" type="button">Start new check</button>
+            </div>
+          </div>
+
+          <div class="iq-details">
+            <div class="field">
+              <label for="lns-date">Check date</label>
+              <input id="lns-date" type="date" required>
+            </div>
+            <div class="field">
+              <label for="lns-time">Check time</label>
+              <input id="lns-time" type="time" step="60" required>
+            </div>
+            <p class="iq-instructions">Every checkpoint starts as ✅ OK. Tap once for ❌ Not OK, tap again to clear it, and tap once more to return to ✅ OK.</p>
+          </div>
+
+          <div id="lns-check-sections" class="iq-sections"></div>
+
+          <div class="iq-toolbar">
+            <button id="lns-mark-all-ok" class="button button-secondary" type="button">Mark all OK</button>
+          </div>
+        </form>
+
+        <aside class="panel preview-panel iq-preview-panel" aria-label="LNS IQ Check chat preview">
+          <div class="panel-heading">
+            <div>
+              <h2>Chat preview</h2>
+              <p>This is exactly what will be copied.</p>
+            </div>
+          </div>
+          <div class="preview-wrap">
+            <textarea id="lns-preview" class="preview iq-preview" readonly spellcheck="false" aria-live="polite" aria-label="Completed LNS IQ Check report"></textarea>
+          </div>
+          <div class="actions">
+            <button id="lns-copy-report" class="button button-primary" type="button">Copy IQ check</button>
+          </div>
+          <p id="lns-copy-status" class="status" role="status" aria-live="polite"></p>
+          <p id="lns-draft-note" class="privacy-note" role="status" aria-live="polite">Drafts are saved only in this browser and automatically deleted one hour after the last change.</p>
+        </aside>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -1308,6 +1532,13 @@
         MI1: ["1-1", "1-2", "2-1", "2-2"],
         MI2: ["3-1", "3-2", "4-1", "4-2", "5-1", "5-2", "5-3"]
       };
+      var lnsColumns = ["NGM", "STK1", "STK2", "STK3"];
+      var lnsGroups = [
+        { heading: "Line 3", rows: ["3-1", "3-2", "3-3", "3-4", "3-5"] },
+        { heading: "Line 4", rows: ["4-1", "4-2", "4-3", "4-4", "4-5", "4-6"] },
+        { heading: "Line 5", rows: ["5-1", "5-2", "5-3", "5-4", "5-5", "5-6", "5-7", "5-8"] },
+        { heading: "Half Cell", rows: ["3-H"] }
+      ];
       var nextRowId = 1;
       var statusTimer = null;
       var draftSaveTimer = null;
@@ -1316,6 +1547,12 @@
       var DRAFT_KEY = "pkg-dl-update-draft-v1";
       var DRAFT_VERSION = 1;
       var DRAFT_TTL_MS = 60 * 60 * 1000;
+      var LNS_DRAFT_KEY = "lns-iq-check-draft-v1";
+      var LNS_DRAFT_VERSION = 1;
+      var lnsDraftSaveTimer = null;
+      var lnsDraftExpiryTimer = null;
+      var lnsDraftSavingEnabled = false;
+      var lnsStatusTimer = null;
       var themeSelect = document.getElementById("theme-select");
       var themeColorMeta = document.querySelector('meta[name="theme-color"]');
       var form = document.getElementById("review-form");
@@ -1333,8 +1570,21 @@
       var draftNote = document.getElementById("draft-note");
       var formsMenuView = document.getElementById("forms-menu-view");
       var pkgFormView = document.getElementById("pkg-form-view");
+      var lnsFormView = document.getElementById("lns-form-view");
       var openPkgButton = document.getElementById("open-pkg-form");
+      var openLnsButton = document.getElementById("open-lns-form");
       var backToMenuButton = document.getElementById("back-to-menu");
+      var lnsBackToMenuButton = document.getElementById("lns-back-to-menu");
+      var lnsForm = document.getElementById("lns-form");
+      var lnsDate = document.getElementById("lns-date");
+      var lnsTime = document.getElementById("lns-time");
+      var lnsSectionsRoot = document.getElementById("lns-check-sections");
+      var lnsMarkAllOkButton = document.getElementById("lns-mark-all-ok");
+      var lnsResetButton = document.getElementById("lns-reset-form");
+      var lnsPreview = document.getElementById("lns-preview");
+      var lnsCopyButton = document.getElementById("lns-copy-report");
+      var lnsStatus = document.getElementById("lns-copy-status");
+      var lnsDraftNote = document.getElementById("lns-draft-note");
       var themeColors = {
         matcha: "#30492d",
         sakura: "#7c344f",
@@ -1346,9 +1596,13 @@
 
       function showRequestedView() {
         var showPkgForm = window.location.hash === "#pkg-update";
-        formsMenuView.hidden = showPkgForm;
+        var showLnsForm = window.location.hash === "#lns-iq-check";
+        formsMenuView.hidden = showPkgForm || showLnsForm;
         pkgFormView.hidden = !showPkgForm;
-        document.title = showPkgForm ? "PKG DL Update" : "Copy/Paste Forms";
+        lnsFormView.hidden = !showLnsForm;
+        document.title = showPkgForm
+          ? "PKG DL Update"
+          : (showLnsForm ? "LNS IQ Check" : "Copy/Paste Forms");
         window.scrollTo(0, 0);
       }
 
@@ -1358,6 +1612,14 @@
           return;
         }
         window.location.hash = "pkg-update";
+      }
+
+      function openLnsForm() {
+        if (window.location.hash === "#lns-iq-check") {
+          showRequestedView();
+          return;
+        }
+        window.location.hash = "lns-iq-check";
       }
 
       function openFormsMenu() {
@@ -1581,6 +1843,315 @@
         scheduleDraftExpiry(draft.savedAt);
         setDraftNote("Draft restored from " + savedTimeText(draft.savedAt) + ". It will be deleted after one hour without changes.");
         return true;
+      }
+
+      function setLnsDraftNote(message) {
+        if (lnsDraftNote) lnsDraftNote.textContent = message;
+      }
+
+      function showLnsStatus(message, isError) {
+        if (lnsStatusTimer) window.clearTimeout(lnsStatusTimer);
+        lnsStatus.textContent = message;
+        lnsStatus.className = isError ? "status error" : "status";
+        lnsStatusTimer = window.setTimeout(function () {
+          lnsStatus.textContent = "";
+          lnsStatus.className = "status";
+        }, 3200);
+      }
+
+      function lnsStateIcon(state, forPreview) {
+        if (state === "ok") return "✅";
+        if (state === "ng") return "❌";
+        return forPreview ? "⬜" : "—";
+      }
+
+      function setLnsCheckState(button, state) {
+        var safeState = state === "ok" || state === "ng" ? state : "unset";
+        var rowName = button.getAttribute("data-row");
+        var columnName = button.getAttribute("data-column");
+        var stateName = safeState === "ok" ? "OK" : (safeState === "ng" ? "Not OK" : "not checked");
+        button.setAttribute("data-state", safeState);
+        button.textContent = lnsStateIcon(safeState, false);
+        button.setAttribute("aria-label", rowName + " " + columnName + ": " + stateName + ". Tap to change.");
+        button.title = rowName + " " + columnName + ": " + stateName;
+      }
+
+      function cycleLnsCheck(button) {
+        var currentState = button.getAttribute("data-state") || "unset";
+        var nextState = currentState === "unset" ? "ok" : (currentState === "ok" ? "ng" : "unset");
+        setLnsCheckState(button, nextState);
+        updateLnsPreview();
+      }
+
+      function renderLnsChecks() {
+        lnsSectionsRoot.innerHTML = "";
+        lnsGroups.forEach(function (group) {
+          var section = makeElement("section", "iq-section");
+          section.appendChild(makeElement("h3", "", group.heading));
+          var grid = makeElement("div", "iq-grid");
+          grid.appendChild(makeElement("span", "iq-column-label", ""));
+          lnsColumns.forEach(function (columnName) {
+            grid.appendChild(makeElement("span", "iq-column-label", columnName));
+          });
+
+          group.rows.forEach(function (rowName) {
+            grid.appendChild(makeElement("span", "iq-row-label", rowName));
+            lnsColumns.forEach(function (columnName) {
+              var checkButton = makeElement("button", "iq-check", "—");
+              checkButton.type = "button";
+              checkButton.setAttribute("data-row", rowName);
+              checkButton.setAttribute("data-column", columnName);
+              setLnsCheckState(checkButton, "ok");
+              checkButton.addEventListener("click", function () {
+                cycleLnsCheck(checkButton);
+              });
+              grid.appendChild(checkButton);
+            });
+          });
+
+          section.appendChild(grid);
+          lnsSectionsRoot.appendChild(section);
+        });
+      }
+
+      function lnsCheckButtons() {
+        return lnsSectionsRoot.querySelectorAll(".iq-check");
+      }
+
+      function findLnsCheck(rowName, columnName) {
+        return lnsSectionsRoot.querySelector('[data-row="' + rowName + '"][data-column="' + columnName + '"]');
+      }
+
+      function lnsDateText(dateValue) {
+        if (!dateValue) return "";
+        var parts = dateValue.split("-");
+        if (parts.length !== 3) return dateValue;
+        return parts[1] + "/" + parts[2];
+      }
+
+      function currentMinuteTime(date) {
+        var current = date || new Date();
+        return pad2(current.getHours()) + ":" + pad2(current.getMinutes());
+      }
+
+      function padRight(value, length) {
+        var textValue = String(value || "");
+        while (textValue.length < length) textValue += " ";
+        return textValue;
+      }
+
+      function updateLnsPreview(options) {
+        var lines = [
+          "MI2 Image Quality Check",
+          lnsDateText(lnsDate.value) + " - " + lnsTime.value,
+          "----------------------------------------",
+          ""
+        ];
+
+        lnsGroups.forEach(function (group, groupIndex) {
+          lines.push(group.heading);
+          lines.push("         | NGM | STK1 | STK2 | STK3 |");
+          group.rows.forEach(function (rowName) {
+            var icons = lnsColumns.map(function (columnName) {
+              var button = findLnsCheck(rowName, columnName);
+              return lnsStateIcon(button ? button.getAttribute("data-state") : "unset", true);
+            });
+            lines.push(
+              padRight(rowName, 6) + "|   " + icons[0] + "    |   " + icons[1] + "    |   " + icons[2] + "    |   " + icons[3] + "    |"
+            );
+          });
+          if (groupIndex < lnsGroups.length - 1) lines.push("");
+        });
+
+        lnsPreview.value = lines.join("\n");
+        if (!options || !options.skipDraftSave) queueLnsDraftSave();
+      }
+
+      function collectLnsDraftState() {
+        var checks = {};
+        Array.prototype.forEach.call(lnsCheckButtons(), function (button) {
+          var rowName = button.getAttribute("data-row");
+          var columnName = button.getAttribute("data-column");
+          if (!checks[rowName]) checks[rowName] = {};
+          checks[rowName][columnName] = button.getAttribute("data-state") || "unset";
+        });
+        return {
+          version: LNS_DRAFT_VERSION,
+          savedAt: Date.now(),
+          date: lnsDate.value,
+          time: lnsTime.value,
+          checks: checks
+        };
+      }
+
+      function removeLnsSavedDraft() {
+        if (!draftStorage) return;
+        try {
+          draftStorage.removeItem(LNS_DRAFT_KEY);
+        } catch (error) {
+          // The visible checklist can continue working if storage becomes unavailable.
+        }
+      }
+
+      function expireLnsSavedDraft() {
+        if (draftStorage) {
+          try {
+            var currentRawDraft = draftStorage.getItem(LNS_DRAFT_KEY);
+            var currentDraft = currentRawDraft ? JSON.parse(currentRawDraft) : null;
+            if (currentDraft && isFinite(currentDraft.savedAt) && Date.now() - currentDraft.savedAt < DRAFT_TTL_MS) {
+              scheduleLnsDraftExpiry(currentDraft.savedAt);
+              return;
+            }
+          } catch (error) {
+            // Invalid draft data is removed below.
+          }
+        }
+        removeLnsSavedDraft();
+        lnsDraftExpiryTimer = null;
+        setLnsDraftNote("The saved LNS check expired after one hour. Current selections remain on screen and will be protected again after your next change.");
+      }
+
+      function scheduleLnsDraftExpiry(savedAt) {
+        if (lnsDraftExpiryTimer) window.clearTimeout(lnsDraftExpiryTimer);
+        lnsDraftExpiryTimer = null;
+        var remaining = DRAFT_TTL_MS - (Date.now() - savedAt);
+        if (remaining <= 0) {
+          expireLnsSavedDraft();
+          return;
+        }
+        lnsDraftExpiryTimer = window.setTimeout(expireLnsSavedDraft, remaining + 50);
+      }
+
+      function saveLnsDraftNow() {
+        lnsDraftSaveTimer = null;
+        if (!lnsDraftSavingEnabled || !draftStorage) return;
+        var draft = collectLnsDraftState();
+        try {
+          draftStorage.setItem(LNS_DRAFT_KEY, JSON.stringify(draft));
+          scheduleLnsDraftExpiry(draft.savedAt);
+          setLnsDraftNote("LNS draft saved on this phone at " + savedTimeText(draft.savedAt) + ". It will be deleted after one hour without changes.");
+        } catch (error) {
+          setLnsDraftNote("This phone blocked LNS draft saving. Keep this screen open until the check is copied.");
+        }
+      }
+
+      function queueLnsDraftSave() {
+        if (!lnsDraftSavingEnabled || !draftStorage) return;
+        if (lnsDraftSaveTimer) window.clearTimeout(lnsDraftSaveTimer);
+        lnsDraftSaveTimer = window.setTimeout(saveLnsDraftNow, 250);
+      }
+
+      function flushLnsDraftSave() {
+        if (!lnsDraftSaveTimer) return;
+        window.clearTimeout(lnsDraftSaveTimer);
+        lnsDraftSaveTimer = null;
+        saveLnsDraftNow();
+      }
+
+      function clearLnsDraftTimers() {
+        if (lnsDraftSaveTimer) window.clearTimeout(lnsDraftSaveTimer);
+        if (lnsDraftExpiryTimer) window.clearTimeout(lnsDraftExpiryTimer);
+        lnsDraftSaveTimer = null;
+        lnsDraftExpiryTimer = null;
+      }
+
+      function readLnsSavedDraft() {
+        if (!draftStorage) return null;
+        try {
+          var rawDraft = draftStorage.getItem(LNS_DRAFT_KEY);
+          if (!rawDraft) return null;
+          var draft = JSON.parse(rawDraft);
+          if (!draft || draft.version !== LNS_DRAFT_VERSION || !isFinite(draft.savedAt)) {
+            removeLnsSavedDraft();
+            return null;
+          }
+          if (Date.now() - draft.savedAt >= DRAFT_TTL_MS) {
+            expireLnsSavedDraft();
+            return null;
+          }
+          return draft;
+        } catch (error) {
+          removeLnsSavedDraft();
+          return null;
+        }
+      }
+
+      function restoreLnsDraft(draft) {
+        if (!draft) return false;
+        if (typeof draft.date === "string" && draft.date) lnsDate.value = draft.date;
+        if (typeof draft.time === "string" && draft.time) lnsTime.value = draft.time;
+        var checks = draft.checks || {};
+        Array.prototype.forEach.call(lnsCheckButtons(), function (button) {
+          var rowName = button.getAttribute("data-row");
+          var columnName = button.getAttribute("data-column");
+          var state = checks[rowName] && checks[rowName][columnName] ? checks[rowName][columnName] : "unset";
+          setLnsCheckState(button, state);
+        });
+        updateLnsPreview({ skipDraftSave: true });
+        scheduleLnsDraftExpiry(draft.savedAt);
+        setLnsDraftNote("LNS draft restored from " + savedTimeText(draft.savedAt) + ". It will be deleted after one hour without changes.");
+        return true;
+      }
+
+      function resetLnsFormState() {
+        var now = new Date();
+        lnsDate.value = localDateValue(now);
+        lnsTime.value = currentMinuteTime(now);
+        Array.prototype.forEach.call(lnsCheckButtons(), function (button) {
+          setLnsCheckState(button, "ok");
+        });
+        updateLnsPreview({ skipDraftSave: true });
+      }
+
+      function startNewLnsCheck() {
+        if (!window.confirm("Clear this LNS IQ Check and start over?")) return;
+        lnsDraftSavingEnabled = false;
+        clearLnsDraftTimers();
+        removeLnsSavedDraft();
+        resetLnsFormState();
+        lnsDraftSavingEnabled = true;
+        setLnsDraftNote("New LNS check started. Draft protection begins when you change a checkpoint.");
+        showLnsStatus("New LNS check started.", false);
+        window.scrollTo(0, 0);
+      }
+
+      function markAllLnsOk() {
+        if (!window.confirm("Mark every LNS checkpoint as OK?")) return;
+        Array.prototype.forEach.call(lnsCheckButtons(), function (button) {
+          setLnsCheckState(button, "ok");
+        });
+        updateLnsPreview();
+        showLnsStatus("All checkpoints marked OK.", false);
+      }
+
+      function copyLnsReport() {
+        updateLnsPreview({ skipDraftSave: true });
+        if (legacyCopyArea(lnsPreview)) {
+          lnsCopyButton.textContent = "Copied";
+          showLnsStatus("Copied! Paste the IQ check into your work chat.", false);
+          window.setTimeout(function () {
+            lnsCopyButton.textContent = "Copy IQ check";
+          }, 1800);
+          return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(lnsPreview.value).then(function () {
+            lnsCopyButton.textContent = "Copied";
+            showLnsStatus("Copied! Paste the IQ check into your work chat.", false);
+            window.setTimeout(function () {
+              lnsCopyButton.textContent = "Copy IQ check";
+            }, 1800);
+          }).catch(function () {
+            lnsPreview.focus();
+            lnsPreview.select();
+            showLnsStatus("Automatic copy was blocked. The IQ check is selected; use Copy from the phone menu.", true);
+          });
+        } else {
+          lnsPreview.focus();
+          lnsPreview.select();
+          showLnsStatus("Automatic copy was blocked. The IQ check is selected; use Copy from the phone menu.", true);
+        }
       }
 
       function applyTheme(themeName) {
@@ -1922,15 +2493,19 @@
         }, 3200);
       }
 
-      function legacyCopy() {
+      function legacyCopyArea(textArea) {
         try {
-          preview.focus();
-          preview.select();
-          preview.setSelectionRange(0, preview.value.length);
+          textArea.focus();
+          textArea.select();
+          textArea.setSelectionRange(0, textArea.value.length);
           return document.execCommand("copy");
         } catch (error) {
           return false;
         }
+      }
+
+      function legacyCopy() {
+        return legacyCopyArea(preview);
       }
 
       function copyReport() {
@@ -1995,6 +2570,9 @@
       form.addEventListener("submit", function (event) {
         event.preventDefault();
       });
+      lnsForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+      });
       machine.addEventListener("change", updateReport);
       reviewDate.addEventListener("change", updateReport);
       reviewDate.addEventListener("input", updateReport);
@@ -2020,9 +2598,19 @@
       copyButton.addEventListener("click", copyReport);
       resetButton.addEventListener("click", resetForm);
       openPkgButton.addEventListener("click", openPkgForm);
+      openLnsButton.addEventListener("click", openLnsForm);
       backToMenuButton.addEventListener("click", openFormsMenu);
+      lnsBackToMenuButton.addEventListener("click", openFormsMenu);
+      lnsResetButton.addEventListener("click", startNewLnsCheck);
+      lnsMarkAllOkButton.addEventListener("click", markAllLnsOk);
+      lnsCopyButton.addEventListener("click", copyLnsReport);
+      lnsDate.addEventListener("change", updateLnsPreview);
+      lnsDate.addEventListener("input", updateLnsPreview);
+      lnsTime.addEventListener("change", updateLnsPreview);
+      lnsTime.addEventListener("input", updateLnsPreview);
       window.addEventListener("hashchange", showRequestedView);
 
+      renderLnsChecks();
       showRequestedView();
 
       var savedDraft = readSavedDraft();
@@ -2036,22 +2624,47 @@
       }
       draftSavingEnabled = true;
 
-      window.addEventListener("pagehide", flushDraftSave);
+      var savedLnsDraft = readLnsSavedDraft();
+      if (!restoreLnsDraft(savedLnsDraft)) {
+        resetLnsFormState();
+        if (draftStorage) {
+          setLnsDraftNote("LNS draft protection is ready. Changes are saved on this phone for one hour.");
+        } else {
+          setLnsDraftNote("This phone blocked LNS draft saving. Keep this screen open until the check is copied.");
+        }
+      }
+      lnsDraftSavingEnabled = true;
+
+      window.addEventListener("pagehide", function () {
+        flushDraftSave();
+        flushLnsDraftSave();
+      });
       document.addEventListener("visibilitychange", function () {
         if (document.visibilityState === "hidden") {
           flushDraftSave();
+          flushLnsDraftSave();
         } else {
           var currentDraft = readSavedDraft();
           if (currentDraft) scheduleDraftExpiry(currentDraft.savedAt);
+          var currentLnsDraft = readLnsSavedDraft();
+          if (currentLnsDraft) scheduleLnsDraftExpiry(currentLnsDraft.savedAt);
         }
       });
       window.addEventListener("pageshow", function (event) {
         if (!event.persisted) return;
         var currentDraft = readSavedDraft();
-        if (!currentDraft) return;
-        draftSavingEnabled = false;
-        restoreDraft(currentDraft);
-        draftSavingEnabled = true;
+        if (currentDraft) {
+          draftSavingEnabled = false;
+          restoreDraft(currentDraft);
+          draftSavingEnabled = true;
+        }
+        var currentLnsDraft = readLnsSavedDraft();
+        if (currentLnsDraft) {
+          lnsDraftSavingEnabled = false;
+          restoreLnsDraft(currentLnsDraft);
+          lnsDraftSavingEnabled = true;
+        }
+        showRequestedView();
       });
     }());
   </script>
