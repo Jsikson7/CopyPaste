@@ -1,13 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="matcha">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#30492d">
-  <title>PKG Image Review Form</title>
+  <title>PKG DL Update</title>
   <style>
     :root {
+      color-scheme: light;
       --matcha-950: #294229;
       --matcha-900: #30492d;
       --matcha-700: #466136;
@@ -24,6 +25,221 @@
       --success: #486d38;
       --shadow: 0 12px 35px rgba(52, 72, 42, 0.11);
       --radius: 14px;
+      --hero-end: #48663b;
+      --hero-accent: #d8e9b9;
+      --hero-copy: #eef4df;
+      --page-glow: rgba(167, 190, 119, 0.22);
+      --page-wash: rgba(112, 143, 76, 0.08);
+      --label: #46523e;
+      --control-line: #c4cfb6;
+      --input-bg: #fffef9;
+      --focus-ring: rgba(120, 150, 83, 0.22);
+      --placeholder: #8c967f;
+      --readonly-line: #cbd5bd;
+      --readonly-bg: #e9efdf;
+      --column-label: #5f6c54;
+      --row-bg: #e8ecdd;
+      --row-ink: #5e6a53;
+      --danger-line: #dec8c1;
+      --danger-hover: #fff4f0;
+      --add-line: #aebb99;
+      --preview-line: #ccd6bf;
+      --preview-bg: #f7f8ef;
+      --preview-ink: #283224;
+      --secondary-ink: #4d5e43;
+      --white-button: #ffffff;
+      --section-tone-1: #fffdf6;
+      --section-tone-2: #eef4e2;
+      --section-tone-3: #f4f0e4;
+      --section-heading-1: #edf3df;
+      --section-heading-2: #e2ecd2;
+      --section-heading-3: #ebe6d7;
+    }
+
+    html[data-theme="sakura"] {
+      --matcha-950: #65283f;
+      --matcha-900: #7c344f;
+      --matcha-700: #a84f72;
+      --matcha-600: #c26083;
+      --matcha-200: #f4ccdc;
+      --matcha-100: #fce8f0;
+      --cream: #fffafd;
+      --paper: #fff5f9;
+      --page: #ffedf4;
+      --ink: #432633;
+      --muted: #7f6370;
+      --line: #ecc8d6;
+      --danger: #a63c4a;
+      --success: #8d4b68;
+      --shadow: 0 12px 35px rgba(111, 46, 72, 0.13);
+      --hero-end: #c75e87;
+      --hero-accent: #ffe2ed;
+      --hero-copy: #fff1f6;
+      --page-glow: rgba(244, 166, 196, 0.3);
+      --page-wash: rgba(212, 103, 143, 0.1);
+      --label: #694354;
+      --control-line: #dfb9c8;
+      --input-bg: #fffafd;
+      --focus-ring: rgba(194, 96, 131, 0.24);
+      --placeholder: #aa8796;
+      --readonly-line: #e3bfcd;
+      --readonly-bg: #f9dfE9;
+      --column-label: #845f6f;
+      --row-bg: #f5dce6;
+      --row-ink: #7d5365;
+      --danger-line: #e6b6bf;
+      --danger-hover: #fff0f3;
+      --add-line: #d79bb2;
+      --preview-line: #dfbdca;
+      --preview-bg: #fff6fa;
+      --preview-ink: #432633;
+      --secondary-ink: #704559;
+      --section-tone-1: #fffafd;
+      --section-tone-2: #fff0f6;
+      --section-tone-3: #fce8f0;
+      --section-heading-1: #fce8f0;
+      --section-heading-2: #f6d8e5;
+      --section-heading-3: #f2cedd;
+    }
+
+    html[data-theme="cyberpunk"] {
+      color-scheme: dark;
+      --matcha-950: #09031f;
+      --matcha-900: #160631;
+      --matcha-700: #00dff2;
+      --matcha-600: #c43cff;
+      --matcha-200: #38205b;
+      --matcha-100: #21123f;
+      --cream: #100824;
+      --paper: #160d2f;
+      --page: #070411;
+      --ink: #f7f3ff;
+      --muted: #b7a9d0;
+      --line: #493268;
+      --danger: #ff5b86;
+      --success: #50f2c1;
+      --shadow: 0 12px 36px rgba(0, 223, 242, 0.12);
+      --hero-end: #5f0d83;
+      --hero-accent: #55f5ff;
+      --hero-copy: #eee6ff;
+      --page-glow: rgba(0, 223, 242, 0.13);
+      --page-wash: rgba(221, 56, 255, 0.12);
+      --label: #ddd0f3;
+      --control-line: #604681;
+      --input-bg: #0d071d;
+      --focus-ring: rgba(0, 223, 242, 0.22);
+      --placeholder: #8f7ba9;
+      --readonly-line: #543a76;
+      --readonly-bg: #251440;
+      --column-label: #c1b0dd;
+      --row-bg: #281844;
+      --row-ink: #78f4ff;
+      --danger-line: #7a3959;
+      --danger-hover: #311127;
+      --add-line: #00bfd2;
+      --preview-line: #52366f;
+      --preview-bg: #0d071d;
+      --preview-ink: #eefbff;
+      --secondary-ink: #e6dcfa;
+      --white-button: #160d2f;
+      --section-tone-1: #100824;
+      --section-tone-2: #10152d;
+      --section-tone-3: #21102d;
+      --section-heading-1: #21123f;
+      --section-heading-2: #142c42;
+      --section-heading-3: #34133e;
+    }
+
+    html[data-theme="lavender"] {
+      --matcha-950: #443064;
+      --matcha-900: #564076;
+      --matcha-700: #73579a;
+      --matcha-600: #8a6caf;
+      --matcha-200: #dfd5ef;
+      --matcha-100: #efe9f8;
+      --cream: #fefcff;
+      --paper: #faf7fe;
+      --page: #f2edfa;
+      --ink: #342943;
+      --muted: #746a82;
+      --line: #dcd2e8;
+      --danger: #a45369;
+      --success: #665184;
+      --shadow: 0 12px 35px rgba(83, 58, 114, 0.12);
+      --hero-end: #8466aa;
+      --hero-accent: #eadffc;
+      --hero-copy: #f7f2ff;
+      --page-glow: rgba(185, 158, 219, 0.25);
+      --page-wash: rgba(127, 94, 168, 0.09);
+      --label: #554765;
+      --control-line: #cfc2dd;
+      --input-bg: #fffefe;
+      --focus-ring: rgba(138, 108, 175, 0.23);
+      --placeholder: #93869f;
+      --readonly-line: #d3c7e0;
+      --readonly-bg: #ece4f5;
+      --column-label: #6f617f;
+      --row-bg: #ebe4f2;
+      --row-ink: #675676;
+      --danger-line: #dec2ca;
+      --danger-hover: #fff1f4;
+      --add-line: #b6a2ca;
+      --preview-line: #d2c6df;
+      --preview-bg: #faf7fd;
+      --preview-ink: #342943;
+      --secondary-ink: #5e4c73;
+      --section-tone-1: #fefcff;
+      --section-tone-2: #f2ecfa;
+      --section-tone-3: #eae4f4;
+      --section-heading-1: #efe9f8;
+      --section-heading-2: #e5dcf1;
+      --section-heading-3: #ddd2eb;
+    }
+
+    html[data-theme="pokemon"] {
+      --matcha-950: #172653;
+      --matcha-900: #1d2c5e;
+      --matcha-700: #2a75bb;
+      --matcha-600: #e3350d;
+      --matcha-200: #ffe36a;
+      --matcha-100: #fff5bd;
+      --cream: #fffef8;
+      --paper: #f5faff;
+      --page: #eaf4ff;
+      --ink: #1e2d4f;
+      --muted: #64728c;
+      --line: #c7d9ed;
+      --danger: #e3350d;
+      --success: #2a75bb;
+      --shadow: 0 12px 35px rgba(42, 117, 187, 0.15);
+      --hero-end: #2a75bb;
+      --hero-accent: #ffcb05;
+      --hero-copy: #f7fbff;
+      --page-glow: rgba(255, 203, 5, 0.25);
+      --page-wash: rgba(42, 117, 187, 0.1);
+      --label: #33466c;
+      --control-line: #b8cee6;
+      --input-bg: #ffffff;
+      --focus-ring: rgba(42, 117, 187, 0.24);
+      --placeholder: #8290a8;
+      --readonly-line: #b9cee3;
+      --readonly-bg: #e5f1fb;
+      --column-label: #536887;
+      --row-bg: #e2eef9;
+      --row-ink: #2a5f93;
+      --danger-line: #e6b7ad;
+      --danger-hover: #fff0ec;
+      --add-line: #7aa6cf;
+      --preview-line: #bdd1e5;
+      --preview-bg: #f8fbff;
+      --preview-ink: #1e2d4f;
+      --secondary-ink: #304a75;
+      --section-tone-1: #fffef8;
+      --section-tone-2: #edf7ff;
+      --section-tone-3: #fff8d6;
+      --section-heading-1: #fff5bd;
+      --section-heading-2: #ddecfb;
+      --section-heading-3: #ffe989;
     }
 
     * {
@@ -43,8 +259,8 @@
       margin: 0;
       overflow-x: hidden;
       background:
-        radial-gradient(circle at 8% 3%, rgba(167, 190, 119, 0.22), transparent 23rem),
-        linear-gradient(135deg, rgba(112, 143, 76, 0.08), transparent 34rem),
+        radial-gradient(circle at 8% 3%, var(--page-glow), transparent 23rem),
+        linear-gradient(135deg, var(--page-wash), transparent 34rem),
         var(--page);
       color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
@@ -78,13 +294,13 @@
       gap: 14px;
       margin-bottom: 10px;
       padding: calc(20px + env(safe-area-inset-top)) 16px 20px;
-      background: linear-gradient(135deg, var(--matcha-950), #48663b);
+      background: linear-gradient(135deg, var(--matcha-950), var(--hero-end));
       color: #fff;
     }
 
     .eyebrow {
       margin: 0 0 4px;
-      color: #d8e9b9;
+      color: var(--hero-accent);
       font-size: 0.73rem;
       font-weight: 800;
       letter-spacing: 0.13em;
@@ -99,20 +315,26 @@
 
     .hero-copy {
       margin: 8px 0 0;
-      color: #eef4df;
+      color: var(--hero-copy);
       font-size: 0.94rem;
     }
 
-    .hero-badge {
-      display: none;
+    .theme-control {
+      width: min(100%, 230px);
       flex: 0 0 auto;
-      padding: 9px 13px;
-      border: 1px solid rgba(238, 244, 223, 0.35);
-      border-radius: 999px;
-      background: rgba(238, 244, 223, 0.11);
-      font-size: 0.8rem;
+    }
+
+    .theme-control label {
+      margin-bottom: 6px;
+      color: var(--hero-accent);
+    }
+
+    .theme-control select {
+      min-height: 46px;
+      border-color: rgba(255, 255, 255, 0.45);
+      background: var(--input-bg);
+      color: var(--ink);
       font-weight: 750;
-      white-space: nowrap;
     }
 
     .workspace {
@@ -175,7 +397,7 @@
     .field-label {
       display: block;
       margin: 0 0 7px;
-      color: #46523e;
+      color: var(--label);
       font-size: 0.79rem;
       font-weight: 780;
     }
@@ -190,10 +412,10 @@
     select,
     textarea {
       width: 100%;
-      border: 1px solid #c4cfb6;
+      border: 1px solid var(--control-line);
       border-radius: 9px;
       outline: none;
-      background: #fffef9;
+      background: var(--input-bg);
       color: var(--ink);
       font-size: 16px;
       accent-color: var(--matcha-700);
@@ -214,28 +436,108 @@
     textarea:focus,
     button:focus-visible {
       border-color: var(--matcha-600);
-      box-shadow: 0 0 0 3px rgba(120, 150, 83, 0.22);
+      box-shadow: 0 0 0 3px var(--focus-ring);
     }
 
     input::placeholder {
-      color: #8c967f;
+      color: var(--placeholder);
     }
 
     input[readonly] {
-      border-color: #cbd5bd;
-      background: #e9efdf;
+      border-color: var(--readonly-line);
+      background: var(--readonly-bg);
       color: var(--matcha-900);
       font-weight: 850;
       text-align: center;
     }
 
+    .building-field {
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .building-field legend {
+      margin: 0 0 7px;
+      padding: 0;
+      color: var(--label);
+      font-size: 0.79rem;
+      font-weight: 780;
+    }
+
+    .building-toggle {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 6px;
+      padding: 5px;
+      border: 1px solid var(--control-line);
+      border-radius: 11px;
+      background: var(--matcha-100);
+    }
+
+    .building-toggle input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      min-height: 0;
+      margin: 0;
+      padding: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .building-toggle label {
+      display: flex;
+      min-height: 46px;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: var(--matcha-900);
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 850;
+      touch-action: manipulation;
+    }
+
+    .building-toggle input:checked + label {
+      border-color: var(--matcha-700);
+      background: var(--matcha-700);
+      color: #ffffff;
+      box-shadow: 0 4px 12px var(--focus-ring);
+    }
+
+    .building-toggle input:focus-visible + label {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
     .report-section {
+      --section-tone: var(--section-tone-1);
+      --section-heading: var(--section-heading-1);
+      --section-accent: var(--matcha-700);
       display: block;
       height: auto;
       padding: 18px 16px;
       border-bottom: 1px solid var(--line);
+      background: var(--section-tone);
       overflow: visible;
       visibility: visible;
+    }
+
+    .report-section:nth-child(3n + 2) {
+      --section-tone: var(--section-tone-2);
+      --section-heading: var(--section-heading-2);
+      --section-accent: var(--matcha-600);
+    }
+
+    .report-section:nth-child(3n + 3) {
+      --section-tone: var(--section-tone-3);
+      --section-heading: var(--section-heading-3);
+      --section-accent: var(--matcha-900);
     }
 
     .report-section:last-child {
@@ -247,6 +549,11 @@
       align-items: center;
       gap: 10px;
       margin-bottom: 16px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--section-accent);
+      border-radius: 10px;
+      background: var(--section-heading);
     }
 
     .section-number {
@@ -257,8 +564,8 @@
       justify-content: center;
       flex: 0 0 28px;
       border-radius: 8px;
-      background: var(--matcha-100);
-      color: var(--matcha-700);
+      background: var(--section-accent);
+      color: #ffffff;
       font-size: 0.79rem;
       font-weight: 850;
     }
@@ -267,7 +574,7 @@
       padding: 13px;
       border: 1px solid var(--line);
       border-radius: 11px;
-      background: var(--paper);
+      background: var(--cream);
       overflow: visible;
     }
 
@@ -325,7 +632,7 @@
     }
 
     .item-column-labels {
-      color: #5f6c54;
+      color: var(--column-label);
       font-size: 0.7rem;
       font-weight: 800;
     }
@@ -338,6 +645,47 @@
       margin-top: 8px;
     }
 
+    .item-comment-wrap {
+      display: grid;
+      grid-column: 2 / -1;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      margin-top: 1px;
+    }
+
+    .item-comment-wrap label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .item-comment {
+      min-height: 42px;
+      background: var(--cream);
+      font-size: 15px;
+    }
+
+    .item-input.fixed-item {
+      text-align: left;
+    }
+
+    .fixed-badge {
+      display: inline-flex;
+      width: 44px;
+      height: 44px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--control-line);
+      border-radius: 8px;
+      background: var(--matcha-100);
+      color: var(--matcha-700);
+      font-size: 0.68rem;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+    }
+
     .row-number {
       display: inline-flex;
       width: 26px;
@@ -345,8 +693,8 @@
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      background: #e8ecdd;
-      color: #5e6a53;
+      background: var(--row-bg);
+      color: var(--row-ink);
       font-size: 0.72rem;
       font-weight: 800;
     }
@@ -363,16 +711,16 @@
       height: 44px;
       align-items: center;
       justify-content: center;
-      border: 1px solid #dec8c1;
+      border: 1px solid var(--danger-line);
       border-radius: 8px;
-      background: #fff;
+      background: var(--white-button);
       color: var(--danger);
       font-size: 1.25rem;
       line-height: 1;
     }
 
     .icon-button:active {
-      background: #fff4f0;
+      background: var(--danger-hover);
     }
 
     .add-row {
@@ -380,9 +728,9 @@
       min-height: 46px;
       margin-top: 11px;
       padding: 8px 10px;
-      border: 1px dashed #aebb99;
+      border: 1px dashed var(--add-line);
       border-radius: 9px;
-      background: #fff;
+      background: var(--white-button);
       color: var(--matcha-700);
       font-size: 0.84rem;
       font-weight: 820;
@@ -407,9 +755,9 @@
       resize: vertical;
       margin: 0;
       padding: 14px;
-      border-color: #ccd6bf;
-      background: #f7f8ef;
-      color: #283224;
+      border-color: var(--preview-line);
+      background: var(--preview-bg);
+      color: var(--preview-ink);
       font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
       font-size: 13px;
       line-height: 1.58;
@@ -442,9 +790,9 @@
     }
 
     .button-secondary {
-      border: 1px solid #c4cfb6;
-      background: #fff;
-      color: #4d5e43;
+      border: 1px solid var(--control-line);
+      background: var(--white-button);
+      color: var(--secondary-ink);
     }
 
     .button-secondary:active {
@@ -498,6 +846,11 @@
         width: 92px;
         flex-basis: 92px;
       }
+
+      .icon-button,
+      .fixed-badge {
+        width: 42px;
+      }
     }
 
     @media (min-width: 650px) {
@@ -515,10 +868,6 @@
         padding: 26px 28px;
         border-radius: var(--radius);
         box-shadow: var(--shadow);
-      }
-
-      .hero-badge {
-        display: block;
       }
 
       .panel {
@@ -646,11 +995,20 @@
   <main class="page-shell">
     <header class="hero">
       <div>
-        <p class="eyebrow">Quality Review Tool</p>
-        <h1>PKG Image Review Form</h1>
+        <p class="eyebrow">Copy/Paste to Kakao Tool</p>
+        <h1>PKG DL Update</h1>
         <p class="hero-copy">Fill in the review, check the preview, then copy it directly into chat.</p>
       </div>
-      <div class="hero-badge">🍵 Matcha · Standalone file</div>
+      <div class="theme-control">
+        <label for="theme-select">Choose theme</label>
+        <select id="theme-select" aria-label="Choose color theme">
+          <option value="matcha">🍵 Matcha</option>
+          <option value="sakura">🌸 Sakura</option>
+          <option value="cyberpunk">⚡ Cyberpunk</option>
+          <option value="lavender">💜 Lavender</option>
+          <option value="pokemon">⚡ Pokémon</option>
+        </select>
+      </div>
     </header>
 
     <noscript>
@@ -662,18 +1020,29 @@
         <div class="panel-heading">
           <div>
             <h2>Review details</h2>
-            <p>Each total automatically sums its item amounts.</p>
+            <p>Work Harder, Not Smarter</p>
           </div>
         </div>
 
         <div class="header-fields">
+          <fieldset class="building-field field-wide">
+            <legend>Building</legend>
+            <div class="building-toggle" role="radiogroup" aria-label="Choose building">
+              <input id="building-mi1" type="radio" name="building" value="MI1">
+              <label for="building-mi1">MI1</label>
+              <input id="building-mi2" type="radio" name="building" value="MI2" checked>
+              <label for="building-mi2">MI2</label>
+            </div>
+            <p class="field-hint">MI1 adds C-NG and X-Ray inspection sections. MI2 uses the standard three sections.</p>
+          </fieldset>
+
           <div class="field">
             <label for="machine">Machine</label>
             <select id="machine">
-              <option value="3-1">3-1</option>
+              <option value="3-1" selected>3-1</option>
               <option value="3-2">3-2</option>
               <option value="4-1">4-1</option>
-              <option value="4-2" selected>4-2</option>
+              <option value="4-2">4-2</option>
               <option value="5-1">5-1</option>
               <option value="5-2">5-2</option>
               <option value="5-3">5-3</option>
@@ -697,7 +1066,6 @@
                 <select id="end-time"></select>
               </div>
             </div>
-            <p class="field-hint">Military time at even two-hour marks.</p>
           </div>
         </div>
 
@@ -719,7 +1087,7 @@
           <button id="reset-form" class="button button-secondary" type="button">Reset</button>
         </div>
         <p id="copy-status" class="status" role="status" aria-live="polite"></p>
-        <p class="privacy-note">Nothing is submitted or stored. Entries disappear when this file is closed or refreshed.</p>
+        <p class="privacy-note">Nothing is submitted or stored. The form starts fresh each time this file is opened.</p>
       </aside>
     </div>
   </main>
@@ -731,30 +1099,56 @@
       var sections = [
         {
           heading: "DL NG",
+          buildings: ["MI1", "MI2"],
           categories: [
             { id: "dl-cathode", polarity: "Cathode (+)", itemType: "Suspect Items" },
             { id: "dl-anode", polarity: "Anode (-)", itemType: "Suspect Items" }
           ]
         },
         {
+          heading: "C-NG",
+          buildings: ["MI1"],
+          categories: [
+            { id: "cng-cathode", polarity: "Cathode (-)", itemType: "Suspect Items" },
+            { id: "cng-anode", polarity: "Anode (-)", itemType: "Suspect Items" }
+          ]
+        },
+        {
           heading: "Rule Based NG",
+          buildings: ["MI1", "MI2"],
           categories: [
             { id: "rule-cathode", polarity: "Cathode (+)", itemType: "NG Items" },
             { id: "rule-anode", polarity: "Anode (-)", itemType: "NG Items" }
           ]
         },
         {
-          heading: "Lead Film Particle (Lead Align Vision)",
+          heading: "Lead Align (Particle)",
+          buildings: ["MI1", "MI2"],
           categories: [
             { id: "lead-cathode", polarity: "Cathode (+)", itemType: "NG Items" },
             { id: "lead-anode", polarity: "Anode (-)", itemType: "NG Items" }
           ]
+        },
+        {
+          heading: "X-Ray",
+          buildings: ["MI1"],
+          categories: [
+            { id: "xray-cathode", polarity: "Cathode (+)", itemType: "" },
+            { id: "xray-anode", polarity: "Anode (-)", itemType: "" }
+          ]
         }
       ];
-
+      var machineChoices = {
+        MI1: ["1-1", "1-2", "2-1", "2-2"],
+        MI2: ["3-1", "3-2", "4-1", "4-2", "5-1", "5-2", "5-3"]
+      };
       var nextRowId = 1;
       var statusTimer = null;
+      var themeSelect = document.getElementById("theme-select");
+      var themeColorMeta = document.querySelector('meta[name="theme-color"]');
       var form = document.getElementById("review-form");
+      var buildingInputs = document.querySelectorAll('input[name="building"]');
+      var buildingMi2 = document.getElementById("building-mi2");
       var machine = document.getElementById("machine");
       var reviewDate = document.getElementById("review-date");
       var startTime = document.getElementById("start-time");
@@ -764,6 +1158,20 @@
       var copyButton = document.getElementById("copy-report");
       var resetButton = document.getElementById("reset-form");
       var status = document.getElementById("copy-status");
+      var themeColors = {
+        matcha: "#30492d",
+        sakura: "#7c344f",
+        cyberpunk: "#160631",
+        lavender: "#564076",
+        pokemon: "#1d2c5e"
+      };
+
+      function applyTheme(themeName) {
+        var safeTheme = themeColors[themeName] ? themeName : "matcha";
+        document.documentElement.setAttribute("data-theme", safeTheme);
+        themeSelect.value = safeTheme;
+        if (themeColorMeta) themeColorMeta.setAttribute("content", themeColors[safeTheme]);
+      }
 
       function pad2(value) {
         return String(value).padStart(2, "0");
@@ -780,13 +1188,50 @@
         return parts[1] + "/" + parts[2] + "/" + parts[0].slice(-2);
       }
 
-      function currentTimes() {
-        var startHour = Math.floor(new Date().getHours() / 2) * 2;
-        var endHour = (startHour + 2) % 24;
+      function formatTime(hour) {
+        return pad2(hour) + ":00";
+      }
+
+      function currentTimes(now, buildingName) {
+        var current = now || new Date();
+        var building = buildingName || selectedBuilding();
+        var currentHour = current.getHours();
+        var endHour = building === "MI1"
+          ? (currentHour % 2 === 1 ? currentHour : (currentHour + 23) % 24)
+          : Math.floor(currentHour / 2) * 2;
+        var startHour = (endHour + 22) % 24;
         return {
-          start: pad2(startHour) + "00",
-          end: pad2(endHour) + "00"
+          start: formatTime(startHour),
+          end: formatTime(endHour)
         };
+      }
+
+      function selectedBuilding() {
+        var checked = document.querySelector('input[name="building"]:checked');
+        return checked ? checked.value : "MI2";
+      }
+
+      function updateMachineOptions() {
+        var choices = machineChoices[selectedBuilding()] || machineChoices.MI2;
+        machine.innerHTML = "";
+        choices.forEach(function (choice) {
+          var option = document.createElement("option");
+          option.value = choice;
+          option.textContent = choice;
+          machine.appendChild(option);
+        });
+        machine.value = choices[0];
+      }
+
+      function activeSections() {
+        var building = selectedBuilding();
+        return sections.filter(function (section) {
+          return section.buildings.indexOf(building) !== -1;
+        });
+      }
+
+      function categoryLabel(category) {
+        return category.polarity + (category.itemType ? " " + category.itemType : "");
       }
 
       function cleanInline(value) {
@@ -801,10 +1246,12 @@
       }
 
       function fillTimeMenus() {
+        var isMi1 = selectedBuilding() === "MI1";
+        var firstHour = isMi1 ? 1 : 0;
         startTime.innerHTML = "";
         endTime.innerHTML = "";
-        for (var hour = 0; hour < 24; hour += 2) {
-          var value = pad2(hour) + "00";
+        for (var hour = firstHour; hour < 24; hour += 2) {
+          var value = formatTime(hour);
           var startOption = document.createElement("option");
           startOption.value = value;
           startOption.textContent = value;
@@ -825,7 +1272,7 @@
         var name = makeElement("div", "category-name");
         var polarity = makeElement("span", "polarity", category.polarity);
         name.appendChild(polarity);
-        name.appendChild(document.createTextNode(" " + category.itemType));
+        if (category.itemType) name.appendChild(document.createTextNode(" " + category.itemType));
 
         var totalField = makeElement("div", "field category-total");
         var totalLabel = document.createElement("label");
@@ -839,7 +1286,7 @@
         totalInput.value = "0";
         totalInput.readOnly = true;
         totalInput.tabIndex = -1;
-        totalInput.setAttribute("aria-label", section.heading + " " + category.polarity + " " + category.itemType + " automatically calculated total");
+        totalInput.setAttribute("aria-label", section.heading + " " + categoryLabel(category) + " automatically calculated total");
         totalField.appendChild(totalLabel);
         totalField.appendChild(totalInput);
 
@@ -873,8 +1320,9 @@
       }
 
       function renderSections() {
+        var displayedSections = activeSections();
         sectionsRoot.innerHTML = "";
-        sections.forEach(function (section, sectionIndex) {
+        displayedSections.forEach(function (section, sectionIndex) {
           var sectionElement = makeElement("section", "report-section");
           var title = makeElement("div", "section-title");
           title.appendChild(makeElement("span", "section-number", String(sectionIndex + 1)));
@@ -887,28 +1335,32 @@
           sectionsRoot.appendChild(sectionElement);
         });
 
-        sections.forEach(function (section) {
+        displayedSections.forEach(function (section) {
           section.categories.forEach(function (category) {
             addRow(section, category, false);
           });
         });
       }
 
-      function addRow(section, category, shouldFocus) {
+      function addRow(section, category, shouldFocus, options) {
+        options = options || {};
         var list = document.getElementById(category.id + "-list");
         var rowId = nextRowId++;
         var row = makeElement("div", "item-row");
         row.setAttribute("data-row-id", String(rowId));
+        row.setAttribute("data-fixed", options.fixed ? "true" : "false");
 
         var rowNumber = makeElement("span", "row-number");
         rowNumber.setAttribute("aria-hidden", "true");
 
         var itemInput = document.createElement("input");
         itemInput.id = "item-" + category.id + "-" + rowId;
-        itemInput.className = "item-input";
+        itemInput.className = options.fixed ? "item-input fixed-item" : "item-input";
         itemInput.type = "text";
         itemInput.placeholder = "Enter item details";
         itemInput.autocomplete = "off";
+        itemInput.value = options.name || "";
+        itemInput.readOnly = Boolean(options.fixed);
 
         var amountInput = document.createElement("input");
         amountInput.className = "item-amount";
@@ -916,16 +1368,37 @@
         amountInput.min = "0";
         amountInput.step = "1";
         amountInput.inputMode = "numeric";
-        amountInput.value = "1";
+        amountInput.value = typeof options.amount === "string" ? options.amount : "1";
 
-        var removeButton = makeElement("button", "icon-button", "×");
-        removeButton.type = "button";
-        removeButton.title = "Remove row";
+        var endControl;
+        if (options.fixed) {
+          endControl = makeElement("span", "fixed-badge", "FIXED");
+          endControl.setAttribute("aria-label", "Required C-NG inspection item");
+          endControl.title = "Required C-NG inspection item";
+        } else {
+          endControl = makeElement("button", "icon-button", "×");
+          endControl.type = "button";
+          endControl.title = "Remove row";
+        }
+
+        var commentWrap = makeElement("div", "item-comment-wrap");
+        var commentLabel = document.createElement("label");
+        commentLabel.setAttribute("for", "comment-" + category.id + "-" + rowId);
+        commentLabel.textContent = "Comment";
+        var commentInput = document.createElement("input");
+        commentInput.id = "comment-" + category.id + "-" + rowId;
+        commentInput.className = "item-comment";
+        commentInput.type = "text";
+        commentInput.placeholder = "Optional comment for this item";
+        commentInput.autocomplete = "off";
+        commentWrap.appendChild(commentLabel);
+        commentWrap.appendChild(commentInput);
 
         row.appendChild(rowNumber);
         row.appendChild(itemInput);
         row.appendChild(amountInput);
-        row.appendChild(removeButton);
+        row.appendChild(endControl);
+        row.appendChild(commentWrap);
         list.appendChild(row);
 
         function refreshLabels() {
@@ -935,26 +1408,32 @@
             var currentItem = currentRow.querySelector(".item-input");
             var currentAmount = currentRow.querySelector(".item-amount");
             var currentRemove = currentRow.querySelector(".icon-button");
+            var currentComment = currentRow.querySelector(".item-comment");
             number.textContent = String(index + 1);
-            currentItem.setAttribute("aria-label", section.heading + " " + category.polarity + " " + category.itemType + " item " + (index + 1));
-            currentAmount.setAttribute("aria-label", section.heading + " " + category.polarity + " " + category.itemType + " item " + (index + 1) + " amount");
-            currentRemove.setAttribute("aria-label", "Remove item " + (index + 1));
+            currentItem.setAttribute("aria-label", section.heading + " " + categoryLabel(category) + " item " + (index + 1));
+            currentAmount.setAttribute("aria-label", section.heading + " " + categoryLabel(category) + " item " + (index + 1) + " amount");
+            currentComment.setAttribute("aria-label", section.heading + " " + categoryLabel(category) + " item " + (index + 1) + " comment");
+            if (currentRemove) currentRemove.setAttribute("aria-label", "Remove item " + (index + 1));
           });
         }
 
         itemInput.addEventListener("input", updateReport);
         amountInput.addEventListener("input", updateReport);
-        removeButton.addEventListener("click", function () {
-          var rows = list.querySelectorAll(".item-row");
-          if (rows.length === 1) {
-            itemInput.value = "";
-            amountInput.value = "1";
-          } else {
-            row.remove();
-          }
-          refreshLabels();
-          updateReport();
-        });
+        commentInput.addEventListener("input", updateReport);
+        if (!options.fixed) {
+          endControl.addEventListener("click", function () {
+            var editableRows = list.querySelectorAll('.item-row[data-fixed="false"]');
+            if (editableRows.length === 1) {
+              itemInput.value = "";
+              amountInput.value = "1";
+              commentInput.value = "";
+            } else {
+              row.remove();
+            }
+            refreshLabels();
+            updateReport();
+          });
+        }
 
         refreshLabels();
         updateReport();
@@ -981,29 +1460,33 @@
       }
 
       function updateReport() {
+        var displayedSections = activeSections();
         var lines = [
           machine.value + " PKG Image Review " + chatDate(reviewDate.value),
-          "TimeFrame: *" + startTime.value + " - " + endTime.value + "*",
+          "TimeFrame: " + startTime.value + " - " + endTime.value,
           ""
         ];
 
-        sections.forEach(function (section, sectionIndex) {
+        displayedSections.forEach(function (section, sectionIndex) {
           lines.push(section.heading + ":");
           section.categories.forEach(function (category) {
             var total = categoryTotal(category.id);
             var totalInput = document.getElementById(category.id + "-total");
             if (totalInput) totalInput.value = String(total);
-            lines.push("-" + category.polarity + " " + category.itemType + ": *" + total + "*");
+            var formattedTotal = String(total);
+            lines.push("-" + categoryLabel(category) + ": " + formattedTotal);
 
             Array.prototype.forEach.call(categoryRows(category.id), function (row) {
               var itemName = cleanInline(row.querySelector(".item-input").value);
               if (itemName) {
                 var amount = cleanInline(row.querySelector(".item-amount").value) || "0";
-                lines.push("*" + itemName + ": " + amount + "*");
+                var comment = cleanInline(row.querySelector(".item-comment").value);
+                lines.push(itemName + ": " + amount);
+                if (comment) lines.push("  Comment: " + comment);
               }
             });
           });
-          if (sectionIndex < sections.length - 1) lines.push("");
+          if (sectionIndex < displayedSections.length - 1) lines.push("");
         });
 
         preview.value = lines.join("\n");
@@ -1060,16 +1543,26 @@
         }
       }
 
-      function resetForm() {
-        if (!window.confirm("Clear this review and start over?")) return;
-        var times = currentTimes();
+      function clearFormState(resetTheme, resetBuilding) {
         nextRowId = 1;
-        machine.value = "4-2";
+        if (statusTimer) window.clearTimeout(statusTimer);
+        status.textContent = "";
+        status.className = "status";
+        if (resetBuilding) buildingMi2.checked = true;
+        updateMachineOptions();
+        fillTimeMenus();
+        var times = currentTimes();
         reviewDate.value = localDateValue(new Date());
         startTime.value = times.start;
         endTime.value = times.end;
+        if (resetTheme) applyTheme("matcha");
         renderSections();
         updateReport();
+      }
+
+      function resetForm() {
+        if (!window.confirm("Clear this review and start over?")) return;
+        clearFormState(false, false);
         showStatus("Form reset.", false);
         window.scrollTo(0, 0);
       }
@@ -1082,16 +1575,32 @@
       reviewDate.addEventListener("input", updateReport);
       startTime.addEventListener("change", updateReport);
       endTime.addEventListener("change", updateReport);
+      themeSelect.addEventListener("change", function () {
+        applyTheme(themeSelect.value);
+      });
+      Array.prototype.forEach.call(buildingInputs, function (buildingInput) {
+        buildingInput.addEventListener("change", function () {
+          if (!buildingInput.checked) return;
+          updateMachineOptions();
+          fillTimeMenus();
+          var times = currentTimes();
+          startTime.value = times.start;
+          endTime.value = times.end;
+          nextRowId = 1;
+          renderSections();
+          updateReport();
+          showStatus(buildingInput.value + " selected. Inspection rows cleared.", false);
+        });
+      });
       copyButton.addEventListener("click", copyReport);
       resetButton.addEventListener("click", resetForm);
 
-      fillTimeMenus();
-      reviewDate.value = localDateValue(new Date());
-      var times = currentTimes();
-      startTime.value = times.start;
-      endTime.value = times.end;
-      renderSections();
-      updateReport();
+      clearFormState(true, true);
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+      window.addEventListener("pageshow", function () {
+        clearFormState(true, true);
+        window.scrollTo(0, 0);
+      });
     }());
   </script>
 </body>
