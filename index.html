@@ -355,8 +355,18 @@
       display: grid;
       grid-template-columns: minmax(0, 1fr);
       gap: 12px;
-      padding: 18px 16px 22px;
+      padding: 18px 16px 14px;
       background: var(--paper);
+    }
+
+    .last-updated {
+      margin: 0;
+      padding: 0 16px 16px;
+      background: var(--paper);
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-align: center;
     }
 
     .form-tile {
@@ -1438,6 +1448,7 @@
             <span class="form-tile-arrow" aria-hidden="true">›</span>
           </button>
         </div>
+        <p class="last-updated">Last updated: <time datetime="2026-08-17">August 17, 2026</time></p>
       </section>
     </section>
 
