@@ -778,6 +778,14 @@
       font-weight: 820;
     }
 
+    .top-reset-button {
+      min-height: 44px;
+      flex: 0 0 auto;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+
     .button-primary {
       border: 1px solid var(--matcha-600);
       background: var(--matcha-600);
@@ -924,7 +932,7 @@
       }
 
       .actions {
-        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-columns: minmax(0, 1fr);
         padding: 0 18px 18px;
       }
 
@@ -1022,6 +1030,7 @@
             <h2>Review details</h2>
             <p>Work Harder, Not Smarter</p>
           </div>
+          <button id="reset-form" class="button button-secondary top-reset-button" type="button">Start new report</button>
         </div>
 
         <div class="header-fields">
@@ -1084,7 +1093,6 @@
         </div>
         <div class="actions">
           <button id="copy-report" class="button button-primary" type="button">Copy report</button>
-          <button id="reset-form" class="button button-secondary" type="button">Start new report</button>
         </div>
         <p id="copy-status" class="status" role="status" aria-live="polite"></p>
         <p id="draft-note" class="privacy-note" role="status" aria-live="polite">Drafts are saved only in this browser and automatically deleted one hour after the last change.</p>
