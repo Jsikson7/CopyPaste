@@ -2006,7 +2006,7 @@
               <h2>Version 1.8</h2>
               <time datetime="2026-08-17">August 17, 2026</time>
             </div>
-            <p>Added No Response NGS with private on-device scanning, editable results, earlier-versus-current photo comparison, automatic increases, and highest-to-lowest report sorting.</p>
+            <p>Added No Response NGS with private on-device scanning, editable results, earlier-versus-current photo comparison, automatic increases, highest-to-lowest report sorting, photo-calibrated highlight detection, and strict safeguards against uncertain OCR values.</p>
           </article>
           <article class="version-card">
             <div class="version-card-heading">
@@ -3569,8 +3569,18 @@
         var red = data[offset];
         var green = data[offset + 1];
         var blue = data[offset + 2];
-        return red > 165 && green > 100 && green < 230 && blue < 140 &&
-          red - blue > 75 && green - blue > 45 && red >= green * 0.95;
+        return red > 150 && red - blue > 35 &&
+          (green - blue > 15 || red - green > 45);
+      }
+
+      function isNgsStatusPixel(data, offset) {
+        var red = data[offset];
+        var green = data[offset + 1];
+        var blue = data[offset + 2];
+        var brightest = Math.max(red, green, blue);
+        var darkest = Math.min(red, green, blue);
+        return brightest > 120 && brightest - darkest > 45 &&
+          green - red > 20 && green - blue > 10;
       }
 
       function createNgsAnalysisCanvas(image) {
@@ -3651,8 +3661,8 @@
             regionWidth > width * 0.035 && regionWidth < width * 0.12 &&
             regionHeight > height * 0.015 && regionHeight < height * 0.07 &&
             aspectRatio > 1.15 && aspectRatio < 3.6 &&
-            fillRatio > 0.42 && centerX > width * 0.15 && centerX < width * 0.95 &&
-            centerY > height * 0.10 && centerY < height * 0.96
+            fillRatio > 0.55 && centerX > width * 0.15 && centerX < width * 0.95 &&
+            centerY > height * 0.04 && centerY < height * 0.96
           ) {
             regions.push({
               minX: minX,
@@ -3670,6 +3680,67 @@
         return regions;
       }
 
+      function findNgsRowAnchors(canvas) {
+        var context = canvas.getContext("2d", { willReadFrequently: true });
+        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        var pixels = imageData.data;
+        var width = canvas.width;
+        var height = canvas.height;
+        var startX = Math.max(0, Math.floor(width * 0.12));
+        var endX = Math.min(width, Math.ceil(width * 0.28));
+        var minimumRowPixels = Math.max(3, Math.round(width * 0.0025));
+        var rowCounts = new Uint16Array(height);
+        var y;
+        var x;
+
+        for (y = 0; y < height; y += 1) {
+          for (x = startX; x < endX; x += 1) {
+            if (isNgsStatusPixel(pixels, (y * width + x) * 4)) rowCounts[y] += 1;
+          }
+        }
+
+        var bands = [];
+        var bandStart = -1;
+        var bandEnd = -1;
+        var weightedY = 0;
+        var bandPixels = 0;
+
+        function finishBand() {
+          if (bandStart < 0) return;
+          var bandHeight = bandEnd - bandStart + 1;
+          if (
+            bandHeight >= Math.max(3, height * 0.0025) &&
+            bandHeight <= height * 0.025 && bandPixels >= width * 0.008
+          ) {
+            bands.push({ position: (weightedY / bandPixels) / height });
+          }
+          bandStart = -1;
+          bandEnd = -1;
+          weightedY = 0;
+          bandPixels = 0;
+        }
+
+        for (y = 0; y < height; y += 1) {
+          if (rowCounts[y] >= minimumRowPixels) {
+            if (bandStart < 0) bandStart = y;
+            bandEnd = y;
+            weightedY += y * rowCounts[y];
+            bandPixels += rowCounts[y];
+          } else {
+            finishBand();
+          }
+        }
+        finishBand();
+
+        if (bands.length !== ngsRows.length) return [];
+        return bands.map(function (band, index) {
+          return {
+            value: ngsRows[index].value,
+            position: band.position
+          };
+        });
+      }
+
       function nearestNgsItem(items, normalizedPosition, tolerance) {
         var match = null;
         var closestDistance = Infinity;
@@ -3685,8 +3756,22 @@
 
       function mapNgsRegions(canvas, regions) {
         var mappedByCell = {};
+        var detectedRows = findNgsRowAnchors(canvas);
+        var rowItems = detectedRows.length === ngsRows.length ? detectedRows : ngsRows;
+        var rowTolerance = 0.027;
+        if (detectedRows.length === ngsRows.length) {
+          var rowGaps = [];
+          for (var rowIndex = 1; rowIndex < detectedRows.length; rowIndex += 1) {
+            var gap = detectedRows[rowIndex].position - detectedRows[rowIndex - 1].position;
+            if (gap > 0 && gap < 0.075) rowGaps.push(gap);
+          }
+          rowGaps.sort(function (left, right) { return left - right; });
+          if (rowGaps.length) {
+            rowTolerance = Math.max(0.012, rowGaps[Math.floor(rowGaps.length / 2)] * 0.46);
+          }
+        }
         regions.forEach(function (region) {
-          var row = nearestNgsItem(ngsRows, region.centerY / canvas.height, 0.027);
+          var row = nearestNgsItem(rowItems, region.centerY / canvas.height, rowTolerance);
           var column = nearestNgsItem(ngsColumns, region.centerX / canvas.width, 0.045);
           if (!row || !column) return;
           var key = row.value + "|" + column.value;
@@ -3724,13 +3809,31 @@
         context.drawImage(sourceCanvas, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, canvas.width, canvas.height);
         var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         var data = imageData.data;
+        var luminanceHistogram = new Uint32Array(256);
         for (var offset = 0; offset < data.length; offset += 4) {
-          var luminance = data[offset] * 0.2126 + data[offset + 1] * 0.7152 + data[offset + 2] * 0.0722;
-          var color = luminance < 120 ? 0 : 255;
-          data[offset] = color;
-          data[offset + 1] = color;
-          data[offset + 2] = color;
-          data[offset + 3] = 255;
+          var sampleLuminance = Math.max(0, Math.min(255, Math.round(
+            data[offset] * 0.2126 + data[offset + 1] * 0.7152 + data[offset + 2] * 0.0722
+          )));
+          luminanceHistogram[sampleLuminance] += 1;
+        }
+        var halfwayPixel = Math.floor((data.length / 4) / 2);
+        var runningPixels = 0;
+        var medianLuminance = 120;
+        for (var luminanceIndex = 0; luminanceIndex < luminanceHistogram.length; luminanceIndex += 1) {
+          runningPixels += luminanceHistogram[luminanceIndex];
+          if (runningPixels >= halfwayPixel) {
+            medianLuminance = luminanceIndex;
+            break;
+          }
+        }
+        var threshold = Math.max(35, Math.min(200, medianLuminance - 35));
+        for (var pixelOffset = 0; pixelOffset < data.length; pixelOffset += 4) {
+          var luminance = data[pixelOffset] * 0.2126 + data[pixelOffset + 1] * 0.7152 + data[pixelOffset + 2] * 0.0722;
+          var color = luminance < threshold ? 0 : 255;
+          data[pixelOffset] = color;
+          data[pixelOffset + 1] = color;
+          data[pixelOffset + 2] = color;
+          data[pixelOffset + 3] = 255;
         }
         context.putImageData(imageData, 0, 0);
         return canvas;
@@ -3767,11 +3870,15 @@
             showNgsScanStatus("Reading " + scanLabel + " value " + (index + 1) + " of " + mappedResults.length + "…", false);
             return worker.recognize(createNgsDigitCanvas(sourceCanvas, result.region)).then(function (recognition) {
               var rawText = recognition && recognition.data ? recognition.data.text : "";
-              var numberMatch = String(rawText || "").match(/\d+/);
+              var confidence = recognition && recognition.data ? Number(recognition.data.confidence) : 0;
+              var numberMatch = String(rawText || "").match(/^\s*(\d{1,3})\s*$/);
+              var verifiedCount = numberMatch && confidence >= 90
+                ? String(parseInt(numberMatch[1], 10))
+                : "";
               recognized.push({
                 line: result.line,
                 station: result.station,
-                count: numberMatch ? String(parseInt(numberMatch[0], 10)) : ""
+                count: verifiedCount
               });
             });
           });
@@ -3806,7 +3913,7 @@
         if (!mappedResults.length) {
           setNgsResults([]);
           setNgsBusy(false);
-          showNgsScanStatus("No amber highlighted cells were found. Use a clear, uncropped dashboard screenshot.", true);
+          showNgsScanStatus("No colored highlighted cells were found. Use a clear photo that includes the full dashboard table.", true);
           return;
         }
 
@@ -3817,7 +3924,7 @@
             worker = createdWorker;
             return worker.setParameters({
               tessedit_char_whitelist: "0123456789",
-              tessedit_pageseg_mode: "6"
+              tessedit_pageseg_mode: "7"
             });
           }).then(function () {
             return recognizeNgsCounts(worker, analysisCanvas, mappedResults, "current", 15, 95);
@@ -3829,7 +3936,7 @@
             return !result.count;
           }).length;
           if (missingCount) {
-            showNgsScanStatus("Scan complete. " + missingCount + " count" + (missingCount === 1 ? " needs" : "s need") + " manual entry; review every row before copying.", true);
+            showNgsScanStatus("Scan complete. " + missingCount + " highlighted count" + (missingCount === 1 ? " could not" : "s could not") + " be verified and need" + (missingCount === 1 ? "s" : "") + " manual entry.", true);
           } else {
             showNgsScanStatus("Scan complete. Review every detected value before copying.", false);
           }
@@ -3852,17 +3959,22 @@
         function addResults(results, propertyName) {
           (results || []).forEach(function (result) {
             var count = parseInt(result.count, 10);
-            if (!isFinite(count) || count < 1) return;
             var key = result.line + "|" + result.station;
             if (!cells[key]) {
               cells[key] = {
                 line: result.line,
                 station: result.station,
                 earlier: 0,
-                current: 0
+                current: 0,
+                earlierUnread: false,
+                currentUnread: false
               };
             }
-            cells[key][propertyName] = count;
+            if (!isFinite(count) || count < 1) {
+              cells[key][propertyName + "Unread"] = true;
+            } else {
+              cells[key][propertyName] = count;
+            }
           });
         }
 
@@ -3877,7 +3989,8 @@
             count: cell.current - cell.earlier
           };
         }).filter(function (result) {
-          return result.count > 0;
+          var source = cells[result.line + "|" + result.station];
+          return !source.earlierUnread && !source.currentUnread && result.count > 0;
         }).sort(function (left, right) {
           var countDifference = right.count - left.count;
           var rowDifference = ngsRowOrder(left.line) - ngsRowOrder(right.line);
@@ -3917,7 +4030,7 @@
         if (!earlierMapped.length && !currentMapped.length) {
           setNgsResults([], "compare");
           setNgsBusy(false);
-          showNgsScanStatus("No amber highlighted cells were found in either photo.", true);
+          showNgsScanStatus("No colored highlighted cells were found in either photo.", true);
           return;
         }
 
@@ -3928,7 +4041,7 @@
             worker = createdWorker;
             return worker.setParameters({
               tessedit_char_whitelist: "0123456789",
-              tessedit_pageseg_mode: "6"
+              tessedit_pageseg_mode: "7"
             });
           }).then(function () {
             return recognizeNgsCounts(worker, earlierCanvas, earlierMapped, "earlier-photo", 12, 50);
@@ -3946,7 +4059,7 @@
             return !result.count;
           }).length;
           if (missingCount) {
-            showNgsScanStatus("Comparison complete with " + missingCount + " unread count" + (missingCount === 1 ? "" : "s") + ". Review and correct the displayed increases before copying.", true);
+            showNgsScanStatus("Comparison complete. " + missingCount + " highlighted count" + (missingCount === 1 ? " was" : "s were") + " uncertain and excluded. Add any missing increases manually before copying.", true);
           } else {
             showNgsScanStatus("Comparison complete. Positive increases are sorted from highest to lowest.", false);
           }
